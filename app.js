@@ -247,6 +247,85 @@ function saveContact() {
   renderContacts();
 }
 
+// ── Google Sheets import ──────────────────────────────────────────────────────
+
+const SHEETS = {
+  // Kolumn-index (0-baserat) för respektive fält – uppdatera om kolumner läggs till
+  students:   { id: '1U4nDv1AhWmCxQx9UH14CBbsjJO7wqI-Y-5Mx1Z5nXSU', gid: '0' },
+  colleagues: { id: '1U4nDv1AhWmCxQx9UH14CBbsjJO7wqI-Y-5Mx1Z5nXSU', gid: null }, // sätt gid när fliken skapas
+};
+
+const STUDENT_COLS   = { name: 0, email: 1, klass: 2, guardian: 3 };
+const COLLEAGUE_COLS = { name: 0, email: 1 };
+
+function sheetCsvUrl(id, gid) {
+  return `https://docs.google.com/spreadsheets/d/${id}/export?format=csv${gid ? '&gid=' + gid : ''}`;
+}
+
+function parseCSV(text) {
+  return text.trim().split('\n').map(row => {
+    const cells = [];
+    let cur = '', inQ = false;
+    for (const ch of row) {
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { cells.push(cur.trim()); cur = ''; }
+      else cur += ch;
+    }
+    cells.push(cur.trim());
+    return cells;
+  });
+}
+
+async function importFromSheet(type) {
+  const cfg = SHEETS[type];
+  if (!cfg.gid && type === 'colleagues') {
+    alert('Lägg till en flik "Kollegor" i sheetet och ange dess gid i inställningarna.');
+    return;
+  }
+  const btn = document.getElementById(type === 'students' ? 'import-students-btn' : 'import-colleagues-btn');
+  const orig = btn.textContent;
+  btn.textContent = 'Hämtar…';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(sheetCsvUrl(cfg.id, cfg.gid));
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const rows = parseCSV(await res.text());
+    const cols = type === 'students' ? STUDENT_COLS : COLLEAGUE_COLS;
+
+    // Rad 0 är rubrikrad – hoppa över den
+    const imported = rows.slice(1).map(r => ({
+      name:     (r[cols.name]     || '').trim(),
+      email:    (r[cols.email]    || '').trim(),
+      klass:    cols.klass    != null ? (r[cols.klass]    || '').trim() : undefined,
+      guardian: cols.guardian != null ? (r[cols.guardian] || '').trim() : undefined,
+    })).filter(c => c.name);
+
+    const list = type === 'students' ? contacts.students : contacts.colleagues;
+
+    // Slå ihop: befintliga poster med samma namn behålls men saknade fält fylls på
+    imported.forEach(imp => {
+      const existing = list.find(c => c.name === imp.name);
+      if (existing) {
+        if (imp.email)    existing.email    = imp.email;
+        if (imp.klass)    existing.klass    = imp.klass;
+        if (imp.guardian) existing.guardian = imp.guardian;
+      } else {
+        list.push(imp);
+      }
+    });
+
+    saveContacts();
+    renderContacts();
+    btn.textContent = `✓ ${imported.length} importerade`;
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
+  } catch (err) {
+    alert('Kunde inte hämta sheetet. Kontrollera att det är delat som "vem som har länken kan visa".\n\n' + err.message);
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+}
+
 // ── Event delegation ──────────────────────────────────────────────────────────
 
 document.addEventListener('click', e => {
@@ -316,6 +395,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add contact buttons
   document.getElementById('add-colleague-btn').addEventListener('click', () => openContactModal('colleague'));
   document.getElementById('add-student-btn').addEventListener('click', () => openContactModal('student'));
+
+  // Import buttons
+  document.getElementById('import-students-btn').addEventListener('click', () => importFromSheet('students'));
+  document.getElementById('import-colleagues-btn').addEventListener('click', () => importFromSheet('colleagues'));
 
   // Keyboard
   document.addEventListener('keydown', e => {

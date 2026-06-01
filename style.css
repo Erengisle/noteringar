@@ -325,6 +325,19 @@ textarea { resize: vertical; min-height: 70px; }
   cursor: pointer;
   margin-top: 6px;
 }
+.btn-import-contact {
+  width: 100%;
+  padding: 11px;
+  background: white;
+  border: 1px solid var(--blue);
+  border-radius: 10px;
+  color: var(--blue);
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 6px;
+}
+.btn-import-contact:disabled { opacity: .6; cursor: default; }
 
 /* ── History ── */
 .history-note { opacity: .6; }
