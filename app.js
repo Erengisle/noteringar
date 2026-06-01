@@ -1,0 +1,331 @@
+'use strict';
+
+// ── Storage ──────────────────────────────────────────────────────────────────
+
+function load(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
+}
+function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+let notes    = load('notes', []);
+let contacts = load('contacts', { colleagues: [], students: [] });
+
+function saveNotes()    { save('notes', notes); }
+function saveContacts() { save('contacts', contacts); }
+
+// ── State ────────────────────────────────────────────────────────────────────
+
+let currentTab = 'active';   // active | history | contacts
+let selectedCat = null;
+let editingContact = null;   // { type, index } or null
+
+// ── Categories ───────────────────────────────────────────────────────────────
+
+const CATS = {
+  kontakta: { label: 'Kontakta',  cls: 'cat-kontakta' },
+  kollup:   { label: 'Kolla upp', cls: 'cat-kollup'   },
+  paminn:   { label: 'Påminn',    cls: 'cat-paminn'   },
+  attgora:  { label: 'Att göra',  cls: 'cat-attgora'  },
+  foljupp:  { label: 'Följ upp',  cls: 'cat-foljupp'  },
+};
+
+// ── Render helpers ────────────────────────────────────────────────────────────
+
+function fmtDate(iso) {
+  const d = new Date(iso);
+  const today = new Date();
+  if (d.toDateString() === today.toDateString()) {
+    return d.toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+  }
+  return d.toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+}
+
+function renderNoteCard(note, idx) {
+  const cat = CATS[note.cat];
+  const done = note.done;
+  const card = document.createElement('div');
+  card.className = 'note-card' + (done ? ' done' : '');
+  card.dataset.idx = idx;
+
+  const checkBtn = `<button class="note-check" data-action="toggle" data-idx="${idx}" aria-label="Markera klar"></button>`;
+
+  const badge = `<span class="cat-badge ${cat.cls}">${cat.label}</span>`;
+  const person = note.personName ? `<span class="note-person">${note.personName}</span>` : '';
+  const date   = `<span class="note-date">${fmtDate(note.created)}</span>`;
+
+  let actions = '';
+  if (note.cat === 'kontakta' && note.personEmail) {
+    const subject = encodeURIComponent('Angående: ' + (note.text || ''));
+    const body    = encodeURIComponent(note.text || '');
+    actions += `<a class="btn-email" href="mailto:${note.personEmail}?subject=${subject}&body=${body}">✉ Öppna e-post</a>`;
+  }
+  actions += `<button class="btn-delete" data-action="delete" data-idx="${idx}">Ta bort</button>`;
+
+  card.innerHTML = `
+    ${checkBtn}
+    <div class="note-body">
+      <div class="note-meta">${badge}${person}${date}</div>
+      <div class="note-text">${escHtml(note.text)}</div>
+      <div class="note-actions">${actions}</div>
+    </div>`;
+  return card;
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderNotes() {
+  const container = document.getElementById('note-list');
+  container.innerHTML = '';
+  const filtered = notes
+    .map((n, i) => ({ ...n, _i: i }))
+    .filter(n => currentTab === 'history' ? n.done : !n.done)
+    .sort((a, b) => b.created.localeCompare(a.created));
+
+  if (!filtered.length) {
+    container.innerHTML = `<div class="empty-state">${currentTab === 'history' ? 'Ingen historik än.' : 'Inga aktiva noteringar.'}</div>`;
+    return;
+  }
+  filtered.forEach(n => container.appendChild(renderNoteCard(n, n._i)));
+}
+
+function renderContacts() {
+  renderGroup('colleague-list', contacts.colleagues, 'colleague');
+  renderGroup('student-list', contacts.students, 'student');
+}
+
+function renderGroup(containerId, list, type) {
+  const el = document.getElementById(containerId);
+  el.innerHTML = '';
+  list.forEach((c, i) => {
+    const item = document.createElement('div');
+    item.className = 'contact-item';
+    const meta = type === 'student'
+      ? (c.klass ? c.klass : '') + (c.klass && c.guardian ? ' · ' : '') + (c.guardian ? 'VH: ' + c.guardian : '')
+      : (c.email || '');
+    item.innerHTML = `
+      <span class="name">${escHtml(c.name)}</span>
+      <span class="meta">${escHtml(meta)}</span>
+      <button class="btn-icon" data-action="edit-contact" data-type="${type}" data-idx="${i}" aria-label="Redigera">✏️</button>
+      <button class="btn-icon" data-action="del-contact" data-type="${type}" data-idx="${i}" aria-label="Ta bort">🗑</button>`;
+    el.appendChild(item);
+  });
+}
+
+// ── Tab rendering ─────────────────────────────────────────────────────────────
+
+function showTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('notes-view').classList.toggle('hidden', tab === 'contacts');
+  document.getElementById('contacts-view').classList.toggle('hidden', tab !== 'contacts');
+  document.getElementById('fab').style.display = tab === 'contacts' ? 'none' : 'flex';
+
+  if (tab !== 'contacts') renderNotes();
+  else renderContacts();
+}
+
+// ── New note modal ────────────────────────────────────────────────────────────
+
+function openNewNote() {
+  selectedCat = null;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('note-text').value = '';
+  document.getElementById('person-group').style.display = 'none';
+  document.getElementById('person-select').innerHTML = '<option value="">– Välj person –</option>';
+  document.getElementById('note-modal').classList.remove('hidden');
+  document.getElementById('note-text').focus();
+}
+
+function closeNewNote() {
+  document.getElementById('note-modal').classList.add('hidden');
+}
+
+function onCatSelect(cat) {
+  selectedCat = cat;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('selected', b.dataset.cat === cat));
+
+  const personGroup = document.getElementById('person-group');
+  const sel = document.getElementById('person-select');
+  const showPerson = cat === 'kontakta' || cat === 'foljupp';
+
+  personGroup.style.display = showPerson ? 'block' : 'none';
+  if (!showPerson) return;
+
+  sel.innerHTML = '<option value="">– Välj person (valfritt) –</option>';
+  if (contacts.colleagues.length) {
+    const g = document.createElement('optgroup');
+    g.label = 'Kollegor';
+    contacts.colleagues.forEach((c, i) => {
+      const o = document.createElement('option');
+      o.value = `colleague:${i}`;
+      o.textContent = c.name;
+      g.appendChild(o);
+    });
+    sel.appendChild(g);
+  }
+  if (contacts.students.length) {
+    const g = document.createElement('optgroup');
+    g.label = 'Elever';
+    contacts.students.forEach((c, i) => {
+      const o = document.createElement('option');
+      o.value = `student:${i}`;
+      o.textContent = c.name + (c.klass ? ' (' + c.klass + ')' : '');
+      g.appendChild(o);
+    });
+    sel.appendChild(g);
+  }
+}
+
+function saveNote() {
+  if (!selectedCat) { alert('Välj en kategori.'); return; }
+  const text = document.getElementById('note-text').value.trim();
+  if (!text) { alert('Skriv en kort notering.'); return; }
+
+  const selVal = document.getElementById('person-select').value;
+  let personName = '', personEmail = '';
+  if (selVal) {
+    const [type, idx] = selVal.split(':');
+    const c = type === 'colleague' ? contacts.colleagues[+idx] : contacts.students[+idx];
+    personName  = c?.name  || '';
+    personEmail = c?.email || '';
+  }
+
+  notes.push({ cat: selectedCat, text, personName, personEmail, created: new Date().toISOString(), done: false });
+  saveNotes();
+  closeNewNote();
+  renderNotes();
+}
+
+// ── Contact modal ─────────────────────────────────────────────────────────────
+
+function openContactModal(type, idx) {
+  editingContact = idx !== undefined ? { type, idx } : { type, idx: null };
+  const isNew = editingContact.idx === null;
+  const c = isNew ? {} : (type === 'colleague' ? contacts.colleagues[idx] : contacts.students[idx]);
+
+  document.getElementById('contact-modal-title').textContent = isNew
+    ? (type === 'colleague' ? 'Lägg till kollega' : 'Lägg till elev')
+    : 'Redigera';
+
+  document.getElementById('contact-name').value    = c.name    || '';
+  document.getElementById('contact-email').value   = c.email   || '';
+
+  const studentFields = document.getElementById('student-fields');
+  studentFields.style.display = type === 'student' ? 'block' : 'none';
+  document.getElementById('contact-klass').value    = c.klass    || '';
+  document.getElementById('contact-guardian').value = c.guardian || '';
+
+  document.getElementById('contact-modal').classList.remove('hidden');
+  document.getElementById('contact-name').focus();
+}
+
+function closeContactModal() {
+  document.getElementById('contact-modal').classList.add('hidden');
+  editingContact = null;
+}
+
+function saveContact() {
+  const name = document.getElementById('contact-name').value.trim();
+  if (!name) { alert('Ange ett namn.'); return; }
+
+  const { type, idx } = editingContact;
+  const list = type === 'colleague' ? contacts.colleagues : contacts.students;
+  const entry = {
+    name,
+    email:    document.getElementById('contact-email').value.trim(),
+    klass:    type === 'student' ? document.getElementById('contact-klass').value.trim()    : undefined,
+    guardian: type === 'student' ? document.getElementById('contact-guardian').value.trim() : undefined,
+  };
+
+  if (idx === null) list.push(entry);
+  else list[idx] = entry;
+
+  saveContacts();
+  closeContactModal();
+  renderContacts();
+}
+
+// ── Event delegation ──────────────────────────────────────────────────────────
+
+document.addEventListener('click', e => {
+  const action = e.target.dataset.action || e.target.closest('[data-action]')?.dataset.action;
+  const el = e.target.dataset.action ? e.target : e.target.closest('[data-action]');
+  if (!el) return;
+
+  switch (action) {
+    case 'toggle': {
+      const i = +el.dataset.idx;
+      notes[i].done = !notes[i].done;
+      saveNotes();
+      renderNotes();
+      break;
+    }
+    case 'delete': {
+      if (!confirm('Ta bort notering?')) return;
+      notes.splice(+el.dataset.idx, 1);
+      saveNotes();
+      renderNotes();
+      break;
+    }
+    case 'edit-contact':
+      openContactModal(el.dataset.type, +el.dataset.idx);
+      break;
+    case 'del-contact': {
+      if (!confirm('Ta bort kontakt?')) return;
+      const list = el.dataset.type === 'colleague' ? contacts.colleagues : contacts.students;
+      list.splice(+el.dataset.idx, 1);
+      saveContacts();
+      renderContacts();
+      break;
+    }
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Nav
+  document.querySelectorAll('nav button').forEach(b => {
+    b.addEventListener('click', () => showTab(b.dataset.tab));
+  });
+
+  // FAB
+  document.getElementById('fab').addEventListener('click', openNewNote);
+
+  // Category buttons
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.addEventListener('click', () => onCatSelect(b.dataset.cat));
+  });
+
+  // Note modal
+  document.getElementById('save-note-btn').addEventListener('click', saveNote);
+  document.getElementById('cancel-note-btn').addEventListener('click', closeNewNote);
+  document.getElementById('note-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeNewNote();
+  });
+
+  // Contact modal
+  document.getElementById('save-contact-btn').addEventListener('click', saveContact);
+  document.getElementById('cancel-contact-btn').addEventListener('click', closeContactModal);
+  document.getElementById('contact-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeContactModal();
+  });
+
+  // Add contact buttons
+  document.getElementById('add-colleague-btn').addEventListener('click', () => openContactModal('colleague'));
+  document.getElementById('add-student-btn').addEventListener('click', () => openContactModal('student'));
+
+  // Keyboard
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeNewNote(); closeContactModal(); }
+  });
+
+  // Service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+
+  showTab('active');
+});
