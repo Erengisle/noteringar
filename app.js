@@ -59,6 +59,12 @@ function renderNoteCard(note, idx) {
     const subject = encodeURIComponent('Angående: ' + (note.text || ''));
     const body    = encodeURIComponent(note.text || '');
     actions += `<a class="btn-email" href="mailto:${note.personEmail}?subject=${subject}&body=${body}">✉ Öppna e-post</a>`;
+
+    const calTitle   = encodeURIComponent((note.personName || 'Möte') + (note.text ? ': ' + note.text : ''));
+    const calDetails = encodeURIComponent(note.text || '');
+    const calGuest   = encodeURIComponent(note.personEmail);
+    const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${calTitle}&details=${calDetails}&add=${calGuest}`;
+    actions += `<a class="btn-calendar" href="${calUrl}" target="_blank" rel="noopener">📅 Boka tid</a>`;
   }
   if (!done) {
     actions += `<button class="btn-done" data-action="toggle" data-idx="${idx}">✓ Markera klar</button>`;

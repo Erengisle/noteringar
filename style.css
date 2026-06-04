@@ -193,6 +193,22 @@ main { padding: 16px; }
 }
 .btn-email:active { background: #eff6ff; }
 
+.btn-calendar {
+  font-size: .8rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--teal);
+  color: var(--teal);
+  background: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+.btn-calendar:active { background: #f0fdfa; }
+
 .btn-done {
   font-size: .8rem;
   padding: 6px 12px;
