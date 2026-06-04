@@ -1,4 +1,4 @@
-const CACHE = 'noteringar-v1';
+const CACHE = 'noteringar-v2';
 const ASSETS = ['/noteringar/', '/noteringar/index.html', '/noteringar/style.css', '/noteringar/app.js', '/noteringar/manifest.json'];
 
 self.addEventListener('install', e => {
