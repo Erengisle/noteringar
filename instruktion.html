@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kom igång med Noteringar</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      line-height: 1.65;
+    }
+
+    .hero {
+      background: #2563eb;
+      color: white;
+      padding: 48px 24px 40px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.5px; margin-bottom: 10px; }
+    .hero p  { font-size: 1.05rem; opacity: .85; max-width: 520px; margin: 0 auto; }
+
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 40px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    h2 .step-num {
+      background: #2563eb;
+      color: white;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    p { margin-bottom: 12px; }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+      margin-bottom: 16px;
+    }
+
+    .tip {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      border-radius: 0 10px 10px 0;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: .93rem;
+    }
+    .tip strong { display: block; margin-bottom: 4px; color: #1d4ed8; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .92rem;
+      margin: 12px 0 16px;
+    }
+    th {
+      background: #f1f5f9;
+      padding: 9px 12px;
+      text-align: left;
+      font-weight: 600;
+      border: 1px solid #e2e8f0;
+    }
+    td {
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      color: #475569;
+    }
+    td.col-name { font-weight: 500; color: #1e293b; }
+    td.optional { color: #94a3b8; font-style: italic; }
+
+    .screen {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 12px 0 16px;
+      font-family: monospace;
+      font-size: .88rem;
+      color: #94a3b8;
+      word-break: break-all;
+    }
+    .screen .hl { color: #60a5fa; }
+
+    ol, ul { padding-left: 22px; margin-bottom: 12px; }
+    li { margin-bottom: 6px; }
+
+    .btn-demo {
+      display: inline-block;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      padding: 13px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-top: 8px;
+    }
+
+    .install-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    @media (max-width: 480px) { .install-grid { grid-template-columns: 1fr; } }
+
+    .install-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    }
+    .install-card h3 { font-size: .95rem; margin-bottom: 8px; }
+    .install-card ol { font-size: .88rem; padding-left: 18px; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 40px 0 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: .82rem;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Kom igång med Noteringar</h1>
+  <p>En guide för dig som vill använda appen med dina egna kontakter.</p>
+</div>
+
+<main>
+
+  <p style="margin-top:8px">Appen <strong>Noteringar</strong> låter dig snabbt anteckna saker på språng – vem du behöver kontakta, vad du ska kolla upp, och så vidare. Den här guiden visar hur du kopplar dina egna kontakter via Google Sheets.</p>
+
+  <!-- STEG 1 -->
+  <h2><span class="step-num">1</span> Skapa ditt eget Google Sheet</h2>
+
+  <p>Öppna <a href="https://sheets.google.com" target="_blank">Google Sheets</a> och skapa ett nytt kalkylark. Du kan ha ett ark för elever och ett för kollegor – eller bara ett av dem, det spelar ingen roll.</p>
+
+  <div class="tip">
+    <strong>Tips</strong>
+    Har du fått ett Sheet av den som introducerade dig till appen? Välj <em>Arkiv → Gör en kopia</em> så får du din egen version att redigera fritt.
+  </div>
+
+  <p>Lägg in rubrikerna i <strong>rad 1</strong> och dina kontakter från rad 2 och nedåt. Kolumnerna ska vara i den här ordningen:</p>
+
+  <p><strong>Flik: Elever</strong></p>
+  <table>
+    <tr><th>A</th><th>B</th><th>C</th><th>D</th></tr>
+    <tr><td class="col-name">Namn</td><td class="col-name">Epost</td><td class="col-name">Klass</td><td class="col-name">Vårdnadshavare</td></tr>
+    <tr><td>Svensson, Kalle</td><td class="optional">valfri</td><td class="optional">valfri</td><td class="optional">valfri</td></tr>
+  </table>
+
+  <p><strong>Flik: Kollegor</strong></p>
+  <table>
+    <tr><th>A</th><th>B</th></tr>
+    <tr><td class="col-name">Namn</td><td class="col-name">Epost</td></tr>
+    <tr><td>Andersson, Maria</td><td class="optional">valfri</td></tr>
+  </table>
+
+  <div class="tip">
+    <strong>Bara Namn krävs</strong>
+    De övriga kolumnerna är valfria. Du kan börja med bara namn och fylla på med e-post och klass när det passar.
+  </div>
+
+  <!-- STEG 2 -->
+  <h2><span class="step-num">2</span> Dela sheetet</h2>
+
+  <p>För att appen ska kunna hämta dina kontakter måste sheetet vara tillgängligt via länk.</p>
+
+  <div class="card">
+    <ol>
+      <li>Klicka på den gröna knappen <strong>Dela</strong> uppe till höger i Sheets.</li>
+      <li>Under <em>Allmän åtkomst</em>, välj <strong>Alla som har länken</strong> och sätt rollen till <strong>Läsare</strong>.</li>
+      <li>Klicka på <strong>Kopiera länk</strong> – du behöver den i nästa steg.</li>
+    </ol>
+  </div>
+
+  <div class="tip">
+    <strong>Din data är säker</strong>
+    Länken ger bara läsåtkomst. Ingen kan ändra något i ditt sheet. Dina kontakter lagras sedan lokalt i din telefon och delas inte med någon annan.
+  </div>
+
+  <!-- STEG 3 -->
+  <h2><span class="step-num">3</span> Installera appen</h2>
+
+  <p>Öppna appens adress i telefonen:</p>
+
+  <div class="screen"><span class="hl">https://erengisle.github.io/noteringar/</span></div>
+
+  <p>Installera den sedan på hemskärmen:</p>
+
+  <div class="install-grid">
+    <div class="install-card">
+      <h3>📱 Android (Chrome)</h3>
+      <ol>
+        <li>Tryck på de tre punkterna uppe till höger</li>
+        <li>Välj <strong>Installera app</strong> eller <strong>Lägg till på startskärmen</strong></li>
+        <li>Bekräfta med <strong>Installera</strong></li>
+      </ol>
+    </div>
+    <div class="install-card">
+      <h3>🍎 iPhone (Safari)</h3>
+      <ol>
+        <li>Tryck på dela-ikonen längst ned (rutan med pilen)</li>
+        <li>Scrolla ned och välj <strong>Lägg till på hemskärmen</strong></li>
+        <li>Tryck på <strong>Lägg till</strong></li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- STEG 4 -->
+  <h2><span class="step-num">4</span> Klistra in din Sheets-länk</h2>
+
+  <p>Öppna appen och tryck på <strong>⚙</strong> (kugghjulet) uppe till höger.</p>
+
+  <div class="card">
+    <ol>
+      <li>Klistra in länken du kopierade i steg 2 i fältet <em>Sheet-länk: Elever</em> (och/eller <em>Kollegor</em>).</li>
+      <li>Tryck <strong>Spara</strong>.</li>
+    </ol>
+  </div>
+
+  <p>Gå sedan till fliken <strong>Kontakter</strong> och tryck på <strong>↓ Importera från Sheets</strong>. Dina kontakter laddas in direkt.</p>
+
+  <div class="tip">
+    <strong>Flera flikar i samma sheet?</strong>
+    Om du har elever och kollegor i samma kalkylark – kopiera länken separat för varje flik. Det enklaste sättet: öppna den aktuella fliken i Sheets, kopiera länken från adressfältet (den innehåller då rätt <em>gid</em>-nummer för just den fliken).
+  </div>
+
+  <!-- STEG 5 -->
+  <h2><span class="step-num">5</span> Börja notera!</h2>
+
+  <p>Tryck på <strong>+</strong>-knappen för att skapa en ny notering. Välj kategori, eventuellt en person, skriv något kort – och spara.</p>
+
+  <p>Aktiva noteringar visas under <strong>Aktiva</strong>. Bocka av en notering när du är klar med den – den hamnar då i <strong>Historik</strong>.</p>
+
+  <p>För noteringar av typen <strong>Kontakta</strong> där du lagt in en e-postadress visas knappen <em>✉ Öppna e-post</em>, som startar din e-postklient med mottagare och text ifylld.</p>
+
+  <hr class="divider">
+
+  <p style="margin-top:32px;font-size:.9rem;color:#64748b">Har du frågor eller stöter på problem? Hör av dig till den kollega som introducerade dig till appen.</p>
+
+</main>
+
+<footer>Noteringar · github.com/erengisle/noteringar</footer>
+
+</body>
+</html>
