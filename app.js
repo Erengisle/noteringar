@@ -48,11 +48,10 @@ function renderNoteCard(note, idx) {
   const card = document.createElement('div');
   card.className = 'note-card' + (done ? ' done' : '');
   card.dataset.idx = idx;
-
-  const checkBtn = `<button class="note-check" data-action="toggle" data-idx="${idx}" aria-label="Markera klar"></button>`;
+  card.dataset.cat = note.cat;
 
   const badge = `<span class="cat-badge ${cat.cls}">${cat.label}</span>`;
-  const person = note.personName ? `<span class="note-person">${note.personName}</span>` : '';
+  const person = note.personName ? `<span class="note-person">${escHtml(note.personName)}</span>` : '';
   const date   = `<span class="note-date">${fmtDate(note.created)}</span>`;
 
   let actions = '';
@@ -61,11 +60,14 @@ function renderNoteCard(note, idx) {
     const body    = encodeURIComponent(note.text || '');
     actions += `<a class="btn-email" href="mailto:${note.personEmail}?subject=${subject}&body=${body}">✉ Öppna e-post</a>`;
   }
+  if (!done) {
+    actions += `<button class="btn-done" data-action="toggle" data-idx="${idx}">✓ Markera klar</button>`;
+  }
   actions += `<button class="btn-delete" data-action="delete" data-idx="${idx}">Ta bort</button>`;
 
   card.innerHTML = `
-    ${checkBtn}
-    <div class="note-body">
+    <div class="note-stripe"></div>
+    <div class="note-inner">
       <div class="note-meta">${badge}${person}${date}</div>
       <div class="note-text">${escHtml(note.text)}</div>
       <div class="note-actions">${actions}</div>
@@ -122,7 +124,11 @@ function showTab(tab) {
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.getElementById('notes-view').classList.toggle('hidden', tab === 'contacts');
   document.getElementById('contacts-view').classList.toggle('hidden', tab !== 'contacts');
-  document.getElementById('fab').style.display = tab === 'contacts' ? 'none' : 'flex';
+
+  const quickCats = document.querySelector('.quick-cats');
+  const notesLabel = document.getElementById('notes-label');
+  if (quickCats) quickCats.style.display = tab === 'active' ? 'grid' : 'none';
+  if (notesLabel) notesLabel.textContent = tab === 'history' ? 'Historik' : 'Aktiva ärenden';
 
   if (tab !== 'contacts') renderNotes();
   else renderContacts();
@@ -130,14 +136,15 @@ function showTab(tab) {
 
 // ── New note modal ────────────────────────────────────────────────────────────
 
-function openNewNote() {
+function openNewNote(preselectedCat) {
   selectedCat = null;
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById('note-text').value = '';
   document.getElementById('person-group').style.display = 'none';
   document.getElementById('person-select').innerHTML = '<option value="">– Välj person –</option>';
   document.getElementById('note-modal').classList.remove('hidden');
-  document.getElementById('note-text').focus();
+  if (preselectedCat) onCatSelect(preselectedCat);
+  setTimeout(() => document.getElementById('note-text').focus(), 100);
 }
 
 function closeNewNote() {
@@ -395,27 +402,25 @@ document.addEventListener('DOMContentLoaded', () => {
     b.addEventListener('click', () => showTab(b.dataset.tab));
   });
 
-  // FAB
-  document.getElementById('fab').addEventListener('click', openNewNote);
+  // Quick-category buttons on home screen
+  document.querySelectorAll('.quick-cat-btn').forEach(b => {
+    b.addEventListener('click', () => openNewNote(b.dataset.quickCat));
+  });
 
-  // Category buttons
+  // Category buttons inside modal
   document.querySelectorAll('.cat-btn').forEach(b => {
     b.addEventListener('click', () => onCatSelect(b.dataset.cat));
   });
 
-  // Note modal
+  // Note modal – X and Avbryt close, NO backdrop click
   document.getElementById('save-note-btn').addEventListener('click', saveNote);
   document.getElementById('cancel-note-btn').addEventListener('click', closeNewNote);
-  document.getElementById('note-modal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeNewNote();
-  });
+  document.getElementById('cancel-note-btn-2').addEventListener('click', closeNewNote);
 
-  // Contact modal
+  // Contact modal – X and Avbryt close, NO backdrop click
   document.getElementById('save-contact-btn').addEventListener('click', saveContact);
   document.getElementById('cancel-contact-btn').addEventListener('click', closeContactModal);
-  document.getElementById('contact-modal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeContactModal();
-  });
+  document.getElementById('cancel-contact-btn-2').addEventListener('click', closeContactModal);
 
   // Add contact buttons
   document.getElementById('add-colleague-btn').addEventListener('click', () => openContactModal('colleague'));
@@ -425,13 +430,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('import-students-btn').addEventListener('click', () => importFromSheet('students'));
   document.getElementById('import-colleagues-btn').addEventListener('click', () => importFromSheet('colleagues'));
 
-  // Settings
+  // Settings – X and Avbryt close, NO backdrop click
   document.getElementById('settings-btn').addEventListener('click', openSettings);
   document.getElementById('save-settings-btn').addEventListener('click', saveSettingsForm);
   document.getElementById('cancel-settings-btn').addEventListener('click', closeSettings);
-  document.getElementById('settings-modal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeSettings();
-  });
+  document.getElementById('cancel-settings-btn-2').addEventListener('click', closeSettings);
 
   // Keyboard
   document.addEventListener('keydown', e => {

@@ -19,14 +19,43 @@
 </header>
 
 <nav>
-  <button data-tab="active" class="active">Aktiva</button>
+  <button data-tab="active" class="active">Ärenden</button>
   <button data-tab="history">Historik</button>
   <button data-tab="contacts">Kontakter</button>
 </nav>
 
 <!-- Notes view -->
 <main id="notes-view">
+
+  <!-- Snabbval: kategorirutnät -->
+  <div class="section-label">Ny notering</div>
+  <div class="quick-cats">
+    <button class="quick-cat-btn qc-kontakta" data-quick-cat="kontakta">
+      <span class="qc-icon">📞</span>
+      <span class="qc-label">Kontakta</span>
+    </button>
+    <button class="quick-cat-btn qc-kollup" data-quick-cat="kollup">
+      <span class="qc-icon">🔍</span>
+      <span class="qc-label">Kolla upp</span>
+    </button>
+    <button class="quick-cat-btn qc-paminn" data-quick-cat="paminn">
+      <span class="qc-icon">⏰</span>
+      <span class="qc-label">Påminn mig</span>
+    </button>
+    <button class="quick-cat-btn qc-attgora" data-quick-cat="attgora">
+      <span class="qc-icon">✅</span>
+      <span class="qc-label">Att göra</span>
+    </button>
+    <button class="quick-cat-btn qc-foljupp" data-quick-cat="foljupp">
+      <span class="qc-icon">🔄</span>
+      <span class="qc-label">Följ upp</span>
+    </button>
+  </div>
+
+  <!-- Aktiva ärenden -->
+  <div class="section-label" id="notes-label">Aktiva ärenden</div>
   <div id="note-list" class="note-list"></div>
+
 </main>
 
 <!-- Contacts view -->
@@ -45,38 +74,39 @@
   </div>
 </main>
 
-<!-- FAB -->
-<button id="fab" aria-label="Ny notering">+</button>
-
 <!-- New note modal -->
 <div id="note-modal" class="modal-backdrop hidden">
   <div class="modal">
-    <h2>Ny notering</h2>
-
-    <label>Kategori</label>
-    <div class="category-grid">
-      <button class="cat-btn" data-cat="kontakta">Kontakta</button>
-      <button class="cat-btn" data-cat="kollup">Kolla upp</button>
-      <button class="cat-btn" data-cat="paminn">Påminn mig</button>
-      <button class="cat-btn" data-cat="attgora">Att göra</button>
-      <button class="cat-btn" data-cat="foljupp">Följ upp</button>
+    <div class="modal-header">
+      <h2>Ny notering</h2>
+      <button class="modal-close" id="cancel-note-btn" aria-label="Stäng">✕</button>
     </div>
+    <div class="modal-body">
+      <label>Kategori</label>
+      <div class="category-grid">
+        <button class="cat-btn" data-cat="kontakta">Kontakta</button>
+        <button class="cat-btn" data-cat="kollup">Kolla upp</button>
+        <button class="cat-btn" data-cat="paminn">Påminn mig</button>
+        <button class="cat-btn" data-cat="attgora">Att göra</button>
+        <button class="cat-btn" data-cat="foljupp">Följ upp</button>
+      </div>
 
-    <div class="form-group" id="person-group" style="display:none">
-      <label for="person-select">Person</label>
-      <select id="person-select">
-        <option value="">– Välj person (valfritt) –</option>
-      </select>
-    </div>
+      <div class="form-group" id="person-group" style="display:none">
+        <label for="person-select">Person</label>
+        <select id="person-select">
+          <option value="">– Välj person (valfritt) –</option>
+        </select>
+      </div>
 
-    <div class="form-group">
-      <label for="note-text">Notering</label>
-      <textarea id="note-text" placeholder="Skriv något kort…" rows="3"></textarea>
-    </div>
+      <div class="form-group">
+        <label for="note-text">Notering</label>
+        <textarea id="note-text" placeholder="Skriv något kort…" rows="3"></textarea>
+      </div>
 
-    <div class="modal-actions">
-      <button id="cancel-note-btn" class="btn-cancel">Avbryt</button>
-      <button id="save-note-btn" class="btn-primary">Spara</button>
+      <div class="modal-actions">
+        <button id="cancel-note-btn-2" class="btn-cancel">Avbryt</button>
+        <button id="save-note-btn" class="btn-primary">Spara</button>
+      </div>
     </div>
   </div>
 </div>
@@ -84,31 +114,35 @@
 <!-- Contact modal -->
 <div id="contact-modal" class="modal-backdrop hidden">
   <div class="modal">
-    <h2 id="contact-modal-title">Lägg till kontakt</h2>
-
-    <div class="form-group">
-      <label for="contact-name">Namn</label>
-      <input type="text" id="contact-name" placeholder="Förnamn Efternamn">
+    <div class="modal-header">
+      <h2 id="contact-modal-title">Lägg till kontakt</h2>
+      <button class="modal-close" id="cancel-contact-btn" aria-label="Stäng">✕</button>
     </div>
-    <div class="form-group">
-      <label for="contact-email">E-post</label>
-      <input type="text" id="contact-email" placeholder="namn@skola.se">
-    </div>
-
-    <div id="student-fields">
+    <div class="modal-body">
       <div class="form-group">
-        <label for="contact-klass">Klass</label>
-        <input type="text" id="contact-klass" placeholder="t.ex. 8B">
+        <label for="contact-name">Namn</label>
+        <input type="text" id="contact-name" placeholder="Förnamn Efternamn">
       </div>
       <div class="form-group">
-        <label for="contact-guardian">Vårdnadshavare (namn)</label>
-        <input type="text" id="contact-guardian" placeholder="Valfritt">
+        <label for="contact-email">E-post</label>
+        <input type="text" id="contact-email" placeholder="namn@skola.se">
       </div>
-    </div>
 
-    <div class="modal-actions">
-      <button id="cancel-contact-btn" class="btn-cancel">Avbryt</button>
-      <button id="save-contact-btn" class="btn-primary">Spara</button>
+      <div id="student-fields">
+        <div class="form-group">
+          <label for="contact-klass">Klass</label>
+          <input type="text" id="contact-klass" placeholder="t.ex. 8B">
+        </div>
+        <div class="form-group">
+          <label for="contact-guardian">Vårdnadshavare (namn)</label>
+          <input type="text" id="contact-guardian" placeholder="Valfritt">
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="cancel-contact-btn-2" class="btn-cancel">Avbryt</button>
+        <button id="save-contact-btn" class="btn-primary">Spara</button>
+      </div>
     </div>
   </div>
 </div>
@@ -116,24 +150,27 @@
 <!-- Settings modal -->
 <div id="settings-modal" class="modal-backdrop hidden">
   <div class="modal">
-    <h2>Inställningar</h2>
-    <p style="font-size:.85rem;color:#64748b;margin-bottom:16px">
-      Klistra in länken till ditt Google Sheet (Arkiv → Dela → Kopiera länk).
-      Sheetet måste vara delat som "vem som har länken kan visa".
-    </p>
-
-    <div class="form-group">
-      <label for="settings-student-url">Sheet-länk: Elever</label>
-      <input type="text" id="settings-student-url" placeholder="https://docs.google.com/spreadsheets/d/…">
+    <div class="modal-header">
+      <h2>Inställningar</h2>
+      <button class="modal-close" id="cancel-settings-btn" aria-label="Stäng">✕</button>
     </div>
-    <div class="form-group">
-      <label for="settings-colleague-url">Sheet-länk: Kollegor</label>
-      <input type="text" id="settings-colleague-url" placeholder="https://docs.google.com/spreadsheets/d/…">
-    </div>
-
-    <div class="modal-actions">
-      <button id="cancel-settings-btn" class="btn-cancel">Avbryt</button>
-      <button id="save-settings-btn" class="btn-primary">Spara</button>
+    <div class="modal-body">
+      <p style="font-size:.85rem;color:#64748b;margin-bottom:16px">
+        Klistra in länken till ditt Google Sheet (Arkiv → Dela → Kopiera länk).
+        Sheetet måste vara delat som "vem som har länken kan visa".
+      </p>
+      <div class="form-group">
+        <label for="settings-student-url">Sheet-länk: Elever</label>
+        <input type="text" id="settings-student-url" placeholder="https://docs.google.com/spreadsheets/d/…">
+      </div>
+      <div class="form-group">
+        <label for="settings-colleague-url">Sheet-länk: Kollegor</label>
+        <input type="text" id="settings-colleague-url" placeholder="https://docs.google.com/spreadsheets/d/…">
+      </div>
+      <div class="modal-actions">
+        <button id="cancel-settings-btn-2" class="btn-cancel">Avbryt</button>
+        <button id="save-settings-btn" class="btn-primary">Spara</button>
+      </div>
     </div>
   </div>
 </div>
