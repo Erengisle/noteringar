@@ -224,6 +224,17 @@ main { padding: 16px; }
 }
 .btn-done:active { background: #f0fdf4; }
 
+.btn-edit {
+  font-size: .78rem;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--gray-200);
+  color: var(--gray-600);
+  background: none;
+  cursor: pointer;
+}
+.btn-edit:active { background: var(--gray-100); }
+
 .btn-delete {
   font-size: .78rem;
   padding: 6px 10px;

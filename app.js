@@ -69,6 +69,7 @@ function renderNoteCard(note, idx) {
   if (!done) {
     actions += `<button class="btn-done" data-action="toggle" data-idx="${idx}">✓ Markera klar</button>`;
   }
+  actions += `<button class="btn-edit" data-action="edit-note" data-idx="${idx}">Redigera</button>`;
   actions += `<button class="btn-delete" data-action="delete" data-idx="${idx}">Ta bort</button>`;
 
   card.innerHTML = `
@@ -144,6 +145,29 @@ function showTab(tab) {
 
 // ── New note modal ────────────────────────────────────────────────────────────
 
+function openEditNote(idx) {
+  const note = notes[idx];
+  selectedCat = null;
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('note-text').value = note.text;
+  document.getElementById('person-group').style.display = 'none';
+  document.getElementById('note-modal').classList.remove('hidden');
+  document.getElementById('note-modal').dataset.editIdx = idx;
+  document.getElementById('note-modal-title').textContent = 'Redigera notering';
+  onCatSelect(note.cat);
+  // Återställ vald person om det finns en
+  setTimeout(() => {
+    const sel = document.getElementById('person-select');
+    for (const opt of sel.options) {
+      if (!opt.value) continue;
+      const [type, i] = opt.value.split(':');
+      const c = type === 'colleague' ? contacts.colleagues[+i] : contacts.students[+i];
+      if (c?.name === note.personName) { sel.value = opt.value; break; }
+    }
+    document.getElementById('note-text').focus();
+  }, 50);
+}
+
 function openNewNote(preselectedCat) {
   selectedCat = null;
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
@@ -151,6 +175,8 @@ function openNewNote(preselectedCat) {
   document.getElementById('person-group').style.display = 'none';
   document.getElementById('person-select').innerHTML = '<option value="">– Välj person –</option>';
   document.getElementById('note-modal').classList.remove('hidden');
+  delete document.getElementById('note-modal').dataset.editIdx;
+  document.getElementById('note-modal-title').textContent = 'Ny notering';
   if (preselectedCat) onCatSelect(preselectedCat);
   setTimeout(() => document.getElementById('note-text').focus(), 100);
 }
@@ -209,7 +235,13 @@ function saveNote() {
     personEmail = c?.email || '';
   }
 
-  notes.push({ cat: selectedCat, text, personName, personEmail, created: new Date().toISOString(), done: false });
+  const editIdx = document.getElementById('note-modal').dataset.editIdx;
+  if (editIdx !== undefined) {
+    const n = notes[+editIdx];
+    n.cat = selectedCat; n.text = text; n.personName = personName; n.personEmail = personEmail;
+  } else {
+    notes.push({ cat: selectedCat, text, personName, personEmail, created: new Date().toISOString(), done: false });
+  }
   saveNotes();
   closeNewNote();
   renderNotes();
@@ -381,6 +413,9 @@ document.addEventListener('click', e => {
       renderNotes();
       break;
     }
+    case 'edit-note':
+      openEditNote(+el.dataset.idx);
+      break;
     case 'delete': {
       if (!confirm('Ta bort notering?')) return;
       notes.splice(+el.dataset.idx, 1);
