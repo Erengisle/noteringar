@@ -131,9 +131,11 @@ function showTab(tab) {
   document.getElementById('notes-view').classList.toggle('hidden', tab === 'contacts');
   document.getElementById('contacts-view').classList.toggle('hidden', tab !== 'contacts');
 
-  const quickCats = document.querySelector('.quick-cats');
+  const quickCatsSection = document.querySelector('.quick-cats');
+  const quickCatsLabel   = quickCatsSection?.previousElementSibling;
   const notesLabel = document.getElementById('notes-label');
-  if (quickCats) quickCats.style.display = tab === 'active' ? 'grid' : 'none';
+  if (quickCatsSection) quickCatsSection.style.display = tab === 'active' ? 'grid' : 'none';
+  if (quickCatsLabel)   quickCatsLabel.style.display   = tab === 'active' ? ''     : 'none';
   if (notesLabel) notesLabel.textContent = tab === 'history' ? 'Historik' : 'Aktiva ärenden';
 
   if (tab !== 'contacts') renderNotes();
