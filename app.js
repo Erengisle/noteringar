@@ -9,9 +9,11 @@ function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
 
 let notes    = load('notes', []);
 let contacts = load('contacts', { colleagues: [], students: [] });
+let settings = load('settings', { studentSheetUrl: '', colleagueSheetUrl: '' });
 
 function saveNotes()    { save('notes', notes); }
 function saveContacts() { save('contacts', contacts); }
+function saveSettings() { save('settings', settings); }
 
 // ── State ────────────────────────────────────────────────────────────────────
 
@@ -249,17 +251,38 @@ function saveContact() {
 
 // ── Google Sheets import ──────────────────────────────────────────────────────
 
-const SHEETS = {
-  // Kolumn-index (0-baserat) för respektive fält – uppdatera om kolumner läggs till
-  students:   { id: '1U4nDv1AhWmCxQx9UH14CBbsjJO7wqI-Y-5Mx1Z5nXSU', gid: '0' },
-  colleagues: { id: '1U4nDv1AhWmCxQx9UH14CBbsjJO7wqI-Y-5Mx1Z5nXSU', gid: null }, // sätt gid när fliken skapas
-};
-
 const STUDENT_COLS   = { name: 0, email: 1, klass: 2, guardian: 3 };
 const COLLEAGUE_COLS = { name: 0, email: 1 };
 
+function parseSheetUrl(url) {
+  if (!url) return null;
+  const idMatch  = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  const gidMatch = url.match(/[?&#]gid=(\d+)/);
+  if (!idMatch) return null;
+  return { id: idMatch[1], gid: gidMatch ? gidMatch[1] : '0' };
+}
+
 function sheetCsvUrl(id, gid) {
-  return `https://docs.google.com/spreadsheets/d/${id}/export?format=csv${gid ? '&gid=' + gid : ''}`;
+  return `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${gid}`;
+}
+
+// ── Settings modal ────────────────────────────────────────────────────────────
+
+function openSettings() {
+  document.getElementById('settings-student-url').value   = settings.studentSheetUrl   || '';
+  document.getElementById('settings-colleague-url').value = settings.colleagueSheetUrl || '';
+  document.getElementById('settings-modal').classList.remove('hidden');
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').classList.add('hidden');
+}
+
+function saveSettingsForm() {
+  settings.studentSheetUrl   = document.getElementById('settings-student-url').value.trim();
+  settings.colleagueSheetUrl = document.getElementById('settings-colleague-url').value.trim();
+  saveSettings();
+  closeSettings();
 }
 
 function parseCSV(text) {
@@ -277,9 +300,11 @@ function parseCSV(text) {
 }
 
 async function importFromSheet(type) {
-  const cfg = SHEETS[type];
-  if (!cfg.gid && type === 'colleagues') {
-    alert('Lägg till en flik "Kollegor" i sheetet och ange dess gid i inställningarna.');
+  const url = type === 'students' ? settings.studentSheetUrl : settings.colleagueSheetUrl;
+  const cfg = parseSheetUrl(url);
+  if (!cfg) {
+    openSettings();
+    alert('Klistra in länken till ditt Google Sheet under Inställningar först.');
     return;
   }
   const btn = document.getElementById(type === 'students' ? 'import-students-btn' : 'import-colleagues-btn');
@@ -400,9 +425,17 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('import-students-btn').addEventListener('click', () => importFromSheet('students'));
   document.getElementById('import-colleagues-btn').addEventListener('click', () => importFromSheet('colleagues'));
 
+  // Settings
+  document.getElementById('settings-btn').addEventListener('click', openSettings);
+  document.getElementById('save-settings-btn').addEventListener('click', saveSettingsForm);
+  document.getElementById('cancel-settings-btn').addEventListener('click', closeSettings);
+  document.getElementById('settings-modal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeSettings();
+  });
+
   // Keyboard
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') { closeNewNote(); closeContactModal(); }
+    if (e.key === 'Escape') { closeNewNote(); closeContactModal(); closeSettings(); }
   });
 
   // Service worker

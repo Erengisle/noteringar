@@ -15,6 +15,7 @@
 
 <header>
   <h1>Noteringar</h1>
+  <button id="settings-btn" aria-label="Inställningar">⚙</button>
 </header>
 
 <nav>
@@ -108,6 +109,31 @@
     <div class="modal-actions">
       <button id="cancel-contact-btn" class="btn-cancel">Avbryt</button>
       <button id="save-contact-btn" class="btn-primary">Spara</button>
+    </div>
+  </div>
+</div>
+
+<!-- Settings modal -->
+<div id="settings-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <h2>Inställningar</h2>
+    <p style="font-size:.85rem;color:#64748b;margin-bottom:16px">
+      Klistra in länken till ditt Google Sheet (Arkiv → Dela → Kopiera länk).
+      Sheetet måste vara delat som "vem som har länken kan visa".
+    </p>
+
+    <div class="form-group">
+      <label for="settings-student-url">Sheet-länk: Elever</label>
+      <input type="text" id="settings-student-url" placeholder="https://docs.google.com/spreadsheets/d/…">
+    </div>
+    <div class="form-group">
+      <label for="settings-colleague-url">Sheet-länk: Kollegor</label>
+      <input type="text" id="settings-colleague-url" placeholder="https://docs.google.com/spreadsheets/d/…">
+    </div>
+
+    <div class="modal-actions">
+      <button id="cancel-settings-btn" class="btn-cancel">Avbryt</button>
+      <button id="save-settings-btn" class="btn-primary">Spara</button>
     </div>
   </div>
 </div>
