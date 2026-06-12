@@ -3,325 +3,297 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Kom igång med Noteringar</title>
+  <title>Noteringar – Instruktion</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: #f8fafc;
-      color: #1e293b;
-      line-height: 1.65;
-    }
-
-    .hero {
-      background: #2563eb;
-      color: white;
-      padding: 48px 24px 40px;
-      text-align: center;
-    }
-    .hero h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.5px; margin-bottom: 10px; }
-    .hero p  { font-size: 1.05rem; opacity: .85; max-width: 520px; margin: 0 auto; }
-
-    main {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 40px 24px 80px;
-    }
-
-    h2 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin: 44px 0 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    h2 .step-num {
-      background: #2563eb;
-      color: white;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: .9rem;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-    h3 {
-      font-size: 1rem;
-      font-weight: 700;
-      margin: 20px 0 8px;
-    }
-
-    p { margin-bottom: 12px; }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      padding: 20px 22px;
-      box-shadow: 0 1px 3px rgba(0,0,0,.1);
-      margin-bottom: 16px;
-    }
-
-    .tip {
-      background: #eff6ff;
-      border-left: 4px solid #2563eb;
-      border-radius: 0 10px 10px 0;
-      padding: 14px 18px;
-      margin: 16px 0;
-      font-size: .93rem;
-    }
-    .tip strong { display: block; margin-bottom: 4px; color: #1d4ed8; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .92rem;
-      margin: 12px 0 16px;
-    }
-    th {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #f1f5f9;
-      padding: 9px 12px;
-      text-align: left;
-      font-weight: 600;
-      border: 1px solid #e2e8f0;
+      color: #1e293b;
+      line-height: 1.6;
+      padding: 0 0 60px;
     }
-    td {
-      padding: 8px 12px;
-      border: 1px solid #e2e8f0;
-      color: #475569;
-    }
-    td.col-name { font-weight: 500; color: #1e293b; }
-    td.optional { color: #94a3b8; font-style: italic; }
 
-    .screen {
-      background: #1e293b;
-      border-radius: 12px;
-      padding: 16px 18px;
-      margin: 12px 0 16px;
-      font-family: monospace;
-      font-size: .88rem;
-      color: #94a3b8;
-      word-break: break-all;
-    }
-    .screen .hl { color: #60a5fa; }
-
-    ol, ul { padding-left: 22px; margin-bottom: 12px; }
-    li { margin-bottom: 6px; }
-
-    /* Category chips */
-    .cat-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 10px;
-      margin: 12px 0 16px;
-    }
-    .cat-chip {
-      border-radius: 12px;
-      padding: 12px 14px;
+    header {
+      background: #2563eb;
       color: white;
+      padding: 28px 24px 22px;
+    }
+    header h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.5px; }
+    header p  { margin-top: 6px; font-size: 0.95rem; opacity: 0.85; }
+
+    .toc {
+      background: white;
+      margin: 20px 16px 0;
+      border-radius: 12px;
+      padding: 18px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    .toc h2 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: #64748b;
+      margin-bottom: 10px;
+    }
+    .toc ol { padding-left: 18px; }
+    .toc li { margin-bottom: 4px; }
+    .toc a  { color: #2563eb; text-decoration: none; font-size: 0.95rem; }
+    .toc a:hover { text-decoration: underline; }
+
+    section {
+      background: white;
+      margin: 16px 16px 0;
+      border-radius: 12px;
+      padding: 22px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08);
+    }
+    section h2 {
+      font-size: 1.15rem;
       font-weight: 700;
-      font-size: .88rem;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .cat-chip .icon { font-size: 1.2rem; }
-    .c-kontakta { background: #2563eb; }
-    .c-kollup   { background: #0d9488; }
-    .c-paminn   { background: #ea580c; }
-    .c-attgora  { background: #16a34a; }
-    .c-foljupp  { background: #7c3aed; }
-
-    /* Button examples */
-    .btn-ex {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: .85rem;
-      font-weight: 500;
-      margin: 2px 3px;
-      border: 1.5px solid;
-      white-space: nowrap;
+    section h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin: 18px 0 8px;
+      color: #334155;
     }
-    .btn-green  { color: #16a34a; border-color: #16a34a; }
-    .btn-blue   { color: #2563eb; border-color: #2563eb; }
-    .btn-teal   { color: #0d9488; border-color: #0d9488; }
-    .btn-gray   { color: #475569; border-color: #e2e8f0; }
 
-    .install-grid {
+    p { margin-bottom: 10px; font-size: 0.95rem; }
+    p:last-child { margin-bottom: 0; }
+    ul, ol { padding-left: 20px; font-size: 0.95rem; margin-bottom: 10px; }
+    li { margin-bottom: 5px; }
+
+    .tip {
+      background: #eff6ff;
+      border-left: 3px solid #2563eb;
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 0.9rem;
+      color: #1e40af;
+    }
+    .warning {
+      background: #fff7ed;
+      border-left: 3px solid #ea580c;
+      border-radius: 0 8px 8px 0;
+      padding: 10px 14px;
+      margin: 12px 0;
+      font-size: 0.9rem;
+      color: #9a3412;
+    }
+
+    .cat-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 10px;
       margin: 12px 0;
     }
-    @media (max-width: 480px) { .install-grid { grid-template-columns: 1fr; } }
+    .cat-card { border-radius: 10px; padding: 12px 14px; font-size: 0.88rem; font-weight: 600; }
+    .cat-card .cat-name { font-size: 1rem; margin-bottom: 3px; }
+    .cat-card .cat-desc { font-weight: 400; font-size: 0.82rem; opacity: .85; }
+    .c-kontakta { background: #dcfce7; color: #166534; }
+    .c-kollup   { background: #dbeafe; color: #1e40af; }
+    .c-paminn   { background: #fef9c3; color: #854d0e; }
+    .c-attgora  { background: #f3e8ff; color: #6b21a8; }
+    .c-foljupp  { background: #ffedd5; color: #9a3412; }
 
-    .install-card {
-      background: white;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,.1);
+    .step { display: flex; gap: 12px; margin-bottom: 14px; align-items: flex-start; }
+    .step-num {
+      min-width: 28px; height: 28px;
+      background: #2563eb; color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700;
+      flex-shrink: 0; margin-top: 1px;
     }
-    .install-card h3 { font-size: .95rem; margin-bottom: 8px; }
-    .install-card ol { font-size: .88rem; padding-left: 18px; }
+    .step-text { font-size: 0.95rem; }
+    .step-text strong { color: #0f172a; }
 
-    hr { border: none; border-top: 1px solid #e2e8f0; margin: 44px 0 0; }
-
-    footer {
-      text-align: center;
-      padding: 24px;
-      font-size: .82rem;
-      color: #94a3b8;
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 10px 0; }
+    th {
+      text-align: left; padding: 8px 10px;
+      background: #f8fafc; border-bottom: 2px solid #e2e8f0;
+      font-weight: 600; color: #475569;
+      font-size: 0.8rem; text-transform: uppercase; letter-spacing: .05em;
     }
+    td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
   </style>
 </head>
 <body>
 
-<div class="hero">
-  <h1>Noteringar – bruksanvisning</h1>
-  <p>Allt du behöver veta för att komma igång och använda appen.</p>
+<header>
+  <h1>📋 Noteringar</h1>
+  <p>Instruktion för lärare – kom igång snabbt</p>
+</header>
+
+<div class="toc">
+  <h2>Innehåll</h2>
+  <ol>
+    <li><a href="#installera">Installera appen på telefonen</a></li>
+    <li><a href="#kategorier">Kategorier – vad betyder de?</a></li>
+    <li><a href="#ny-notering">Skapa en ny notering</a></li>
+    <li><a href="#klarmarkera">Markera klar och historik</a></li>
+    <li><a href="#kontakter">Lägga till kontakter</a></li>
+    <li><a href="#importera">Importera kontakter från Google Sheets</a></li>
+    <li><a href="#rosta">Röstinmatning – diktera istället för att skriva</a></li>
+    <li><a href="#kalender">Boka i Google Kalender direkt från notering</a></li>
+  </ol>
 </div>
 
-<main>
+<section id="installera">
+  <h2>📱 1. Installera appen på telefonen</h2>
+  <p>Noteringar är en webbapp som kan sparas som en ikon på hemskärmen, precis som en vanlig app. All data sparas lokalt på din telefon.</p>
 
-  <!-- ── ÖVERSIKT ── -->
-  <h2><span class="step-num">1</span> Vad är appen?</h2>
+  <h3>Android (Chrome)</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Öppna <strong>Chrome</strong> och gå till appens adress.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Tryck på de <strong>tre prickarna</strong> uppe till höger.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Välj <strong>"Lägg till på startskärmen"</strong> och bekräfta.</div></div>
 
-  <p><strong>Noteringar</strong> är en mobilapp för snabba noteringar på språng – till exempel när en kollega frågar om något i korridoren och du vill komma ihåg att agera. Appen installeras på hemskärmen och all data sparas lokalt i din telefon.</p>
+  <h3>iPhone / iPad (Safari)</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Öppna <strong>Safari</strong> (inte Chrome) och gå till appens adress.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Tryck på <strong>dela-ikonen</strong> – rutan med en pil uppåt längst ned.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Välj <strong>"Lägg till på hemskärmen"</strong> och tryck Lägg till.</div></div>
 
-  <p>Appen har tre flikar: <strong>Ärenden</strong>, <strong>Historik</strong> och <strong>Kontakter</strong>.</p>
+  <div class="tip">Appen fungerar även offline tack vare att allt sparas lokalt i telefonen. Inget konto behövs.</div>
+</section>
 
-  <!-- ── INSTALLERA ── -->
-  <h2><span class="step-num">2</span> Installera appen</h2>
-
-  <p>Öppna appens adress i telefonen:</p>
-  <div class="screen"><span class="hl">https://erengisle.github.io/noteringar/</span></div>
-
-  <div class="install-grid">
-    <div class="install-card">
-      <h3>📱 Android (Chrome)</h3>
-      <ol>
-        <li>Tryck på de tre punkterna uppe till höger</li>
-        <li>Välj <strong>Installera app</strong></li>
-        <li>Bekräfta med <strong>Installera</strong></li>
-      </ol>
-    </div>
-    <div class="install-card">
-      <h3>🍎 iPhone (Safari)</h3>
-      <ol>
-        <li>Tryck på dela-ikonen längst ned</li>
-        <li>Välj <strong>Lägg till på hemskärmen</strong></li>
-        <li>Tryck på <strong>Lägg till</strong></li>
-      </ol>
-    </div>
-  </div>
-
-  <!-- ── SKAPA NOTERING ── -->
-  <h2><span class="step-num">3</span> Skapa en notering</h2>
-
-  <p>På startsidan (<strong>Ärenden</strong>) ser du dina aktiva ärenden överst. Under dem finns fem färgade knappar – tryck direkt på den kategori du vill använda:</p>
-
+<section id="kategorier">
+  <h2>🏷️ 2. Kategorier – vad betyder de?</h2>
+  <p>Varje notering kopplas till en kategori som beskriver vad du behöver göra:</p>
   <div class="cat-grid">
-    <div class="cat-chip c-kontakta"><span class="icon">📞</span> Kontakta</div>
-    <div class="cat-chip c-kollup"><span class="icon">🔍</span> Kolla upp</div>
-    <div class="cat-chip c-paminn"><span class="icon">⏰</span> Påminn mig</div>
-    <div class="cat-chip c-attgora"><span class="icon">✅</span> Att göra</div>
-    <div class="cat-chip c-foljupp"><span class="icon">🔄</span> Följ upp</div>
+    <div class="cat-card c-kontakta">
+      <div class="cat-name">📞 Kontakta</div>
+      <div class="cat-desc">Ring eller mejla en elev, kollega eller vårdnadshavare.</div>
+    </div>
+    <div class="cat-card c-kollup">
+      <div class="cat-name">🔍 Kolla upp</div>
+      <div class="cat-desc">Något du behöver ta reda på eller undersöka.</div>
+    </div>
+    <div class="cat-card c-paminn">
+      <div class="cat-name">⏰ Kom ihåg!</div>
+      <div class="cat-desc">En enkel påminnelse om något du inte får glömma.</div>
+    </div>
+    <div class="cat-card c-attgora">
+      <div class="cat-name">✅ Att göra</div>
+      <div class="cat-desc">En uppgift som ska utföras.</div>
+    </div>
+    <div class="cat-card c-foljupp">
+      <div class="cat-name">🔄 Följ upp</div>
+      <div class="cat-desc">Något du ska återkomma till eller följa upp på.</div>
+    </div>
   </div>
+</section>
 
-  <p>Formuläret öppnas med kategorin redan vald. Skriv en kort text, välj eventuellt en person och tryck <strong>Spara</strong>. Du stänger utan att spara med krysset <strong>✕</strong> uppe till höger eller knappen <strong>Avbryt</strong>.</p>
+<section id="ny-notering">
+  <h2>✏️ 3. Skapa en ny notering</h2>
+  <p>På startsidan finns fem stora knappar – en per kategori. Tryck på den du vill använda.</p>
 
-  <div class="tip">
-    <strong>Kategorierna – vad passar när?</strong>
-    <ul style="margin-top:6px">
-      <li><strong>Kontakta</strong> – du behöver höra av dig till någon</li>
-      <li><strong>Kolla upp</strong> – något du behöver ta reda på</li>
-      <li><strong>Påminn mig</strong> – kom ihåg att göra något</li>
-      <li><strong>Att göra</strong> – en konkret uppgift</li>
-      <li><strong>Följ upp</strong> – kolla läget på något du redan satt igång</li>
-    </ul>
-  </div>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Tryck på en <strong>kategoriknopp</strong>, t.ex. "Kontakta".</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">För <em>Kontakta</em> och <em>Följ upp</em> visas en <strong>personlista</strong> – välj valfritt en person att koppla noteringen till.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Skriv din <strong>notering</strong> i textrutan. Du kan också <a href="#rosta">diktera med rösten</a>.</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text">Tryck <strong>Spara</strong>.</div></div>
 
-  <!-- ── HANTERA ÄRENDEN ── -->
-  <h2><span class="step-num">4</span> Hantera ärenden</h2>
+  <div class="tip">Du kan alltid redigera en notering i efterhand – tryck på "Redigera" direkt på noteringen.</div>
 
-  <p>Varje ärende har en färgad kant som matchar kategorin och ett antal knappar:</p>
+  <h3>Extra på Kontakta-noteringar</h3>
+  <p>Om du kopplat en person med e-postadress visas två extraknappar på noteringen:</p>
+  <ul>
+    <li><strong>✉ Öppna e-post</strong> – öppnar din mejlapp med mottagaren och texten förifylld.</li>
+    <li><strong>📅 Boka tid</strong> – öppnar Google Kalender med ett nytt möte förifyllt. Se <a href="#kalender">avsnitt 8</a>.</li>
+  </ul>
+</section>
 
-  <div class="card">
-    <p><span class="btn-ex btn-green">✓ Markera klar</span> – ärendet är klart och flyttas till Historik.</p>
-    <p><span class="btn-ex btn-gray">Redigera</span> – öppnar ärendet för att ändra text, kategori eller person.</p>
-    <p><span class="btn-ex btn-blue">✉ Öppna e-post</span> – öppnar din e-postklient med mottagare och text förifyllt. <em>Visas bara om du valt en person med e-post på ett Kontakta-ärende.</em></p>
-    <p><span class="btn-ex btn-teal">📅 Boka tid</span> – öppnar Google Kalender med en händelse förifylld och personen inbjuden. <em>Visas bara om du valt en person med e-post på ett Kontakta-ärende.</em></p>
-    <p><span class="btn-ex btn-gray">Ta bort</span> – raderar ärendet permanent (du får bekräfta).</p>
-  </div>
+<section id="klarmarkera">
+  <h2>✓ 4. Markera klar och historik</h2>
+  <p>Tryck på <strong>"✓ Markera klar"</strong> på en notering när du är klar med den. Den försvinner från aktivlistan men sparas i historiken.</p>
+  <p>Tryck på fliken <strong>Historik</strong> i menyn längst upp för att se alla avklarade noteringar. Härifrån kan du också ta bort dem om du vill.</p>
+</section>
 
-  <!-- ── HISTORIK ── -->
-  <h2><span class="step-num">5</span> Historik</h2>
+<section id="kontakter">
+  <h2>👤 5. Lägga till kontakter</h2>
+  <p>Under fliken <strong>Kontakter</strong> hanterar du elever och kollegor. De dyker sedan upp i personlistan när du skapar noteringar av typen <em>Kontakta</em> eller <em>Följ upp</em>.</p>
 
-  <p>Fliken <strong>Historik</strong> visar alla ärenden du bockat av. De finns kvar tills du väljer att ta bort dem. Bra om du vill kolla vad du gjort under dagen.</p>
+  <h3>Lägga till manuellt</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Gå till fliken <strong>Kontakter</strong>.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Tryck <strong>"+ Lägg till elev"</strong> eller <strong>"+ Lägg till kollega"</strong>.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Fyll i namn och e-post (samt klass och eventuell vårdnadshavare för elever).</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text">Tryck <strong>Spara</strong>.</div></div>
 
-  <!-- ── KONTAKTER ── -->
-  <h2><span class="step-num">6</span> Lägg till kontakter</h2>
+  <h3>Vad sparas?</h3>
+  <table>
+    <tr><th>Fält</th><th>Elev</th><th>Kollega</th></tr>
+    <tr><td>Namn</td><td>✓</td><td>✓</td></tr>
+    <tr><td>E-post</td><td>✓</td><td>✓</td></tr>
+    <tr><td>Klass</td><td>✓</td><td>–</td></tr>
+    <tr><td>Vårdnadshavare</td><td>✓ (valfritt)</td><td>–</td></tr>
+  </table>
 
-  <p>Under fliken <strong>Kontakter</strong> hanterar du dina kollegor och elever. Kontakter används när du skapar ett ärende av typen <em>Kontakta</em> eller <em>Följ upp</em> – då kan du koppla ärendet till en person.</p>
+  <p>Tryck på pennans ikon (✏️) bredvid en kontakt för att redigera, eller på papperskorgen (🗑) för att ta bort.</p>
+</section>
 
-  <h3>Lägg till manuellt</h3>
-  <p>Tryck på <strong>+ Lägg till kollega</strong> eller <strong>+ Lägg till elev</strong> och fyll i namn, e-post och eventuell klass eller vårdnadshavare.</p>
+<section id="importera">
+  <h2>📊 6. Importera kontakter från Google Sheets</h2>
+  <p>Har du redan en lista i ett Google Kalkylark kan du importera dem direkt – slipper skriva in varje person för hand.</p>
 
-  <h3>Importera från Google Sheets</h3>
-  <p>Om du har ett Google Sheet med dina kontakter kan du importera dem direkt. Kolumnerna ska vara i den här ordningen:</p>
+  <h3>Steg 1 – Förbered kalkylarket</h3>
+  <p>Rad 1 ska vara en rubrikrad (texten där spelar ingen roll). Kolumnerna ska ligga i den här ordningen:</p>
 
-  <p><strong>Elever</strong></p>
+  <p><strong>Elever (4 kolumner):</strong></p>
   <table>
     <tr><th>A</th><th>B</th><th>C</th><th>D</th></tr>
-    <tr><td class="col-name">Namn</td><td class="col-name">Epost</td><td class="col-name">Klass</td><td class="col-name">Vårdnadshavare</td></tr>
-    <tr><td>Svensson, Kalle</td><td class="optional">valfri</td><td class="optional">valfri</td><td class="optional">valfri</td></tr>
+    <tr><td>Namn</td><td>E-post</td><td>Klass</td><td>Vårdnadshavare</td></tr>
   </table>
 
-  <p><strong>Kollegor</strong></p>
+  <p style="margin-top:12px"><strong>Kollegor (2 kolumner):</strong></p>
   <table>
     <tr><th>A</th><th>B</th></tr>
-    <tr><td class="col-name">Namn</td><td class="col-name">Epost</td></tr>
-    <tr><td>Andersson, Maria</td><td class="optional">valfri</td></tr>
+    <tr><td>Namn</td><td>E-post</td></tr>
   </table>
 
-  <div class="tip">
-    <strong>Bara Namn krävs</strong>
-    De övriga kolumnerna är valfria. Utan e-post visas inte knapparna för e-post och bokning av tid.
-  </div>
+  <h3>Steg 2 – Dela kalkylarket</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Klicka på <strong>Arkiv → Dela → Dela med andra</strong>.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Ändra till <strong>"Vem som helst med länken – Läsare"</strong>.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Kopiera länken och stäng dialogen.</div></div>
 
-  <!-- ── INSTÄLLNINGAR ── -->
-  <h2><span class="step-num">7</span> Inställningar – koppla ditt Google Sheet</h2>
+  <h3>Steg 3 – Klistra in länken i appen</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Tryck på <strong>kugghjulet ⚙</strong> uppe till höger i appen.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Klistra in länken i rätt fält – Elever eller Kollegor.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Tryck <strong>Spara</strong> och stäng inställningarna.</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text">Gå till <strong>Kontakter</strong> och tryck <strong>"↓ Importera från Sheets"</strong>.</div></div>
 
-  <p>Tryck på <strong>⚙</strong> uppe till höger för att öppna inställningarna.</p>
+  <div class="tip">Du kan importera igen om listan uppdateras – befintliga poster uppdateras och nya läggs till utan att något du ändrat manuellt i appen skrivs över.</div>
+  <div class="warning">Kalkylarket måste vara delat som "vem som helst med länken kan visa". Annars visas ett felmeddelande.</div>
+</section>
 
-  <div class="card">
-    <ol>
-      <li>Öppna ditt Google Sheet och se till att det är delat som <em>Alla som har länken kan visa</em> (Dela → Allmän åtkomst).</li>
-      <li>Kopiera länken från adressfältet.</li>
-      <li>Klistra in den i fältet <strong>Sheet-länk: Elever</strong> eller <strong>Sheet-länk: Kollegor</strong>.</li>
-      <li>Tryck <strong>Spara</strong>.</li>
-      <li>Gå till Kontakter och tryck <strong>↓ Importera från Sheets</strong>.</li>
-    </ol>
-  </div>
+<section id="rosta">
+  <h2>🎤 7. Röstinmatning – diktera istället för att skriva</h2>
+  <p>I noteringsformuläret finns knappen <strong>🎤 Diktera</strong> under textrutan. Tryck på den och tala – det du säger skrivs in automatiskt.</p>
 
-  <div class="tip">
-    <strong>Egna kontakter</strong>
-    Varje användare klistrar in sin egen Sheets-länk. All data sparas lokalt i din telefon och delas inte med någon annan.
-  </div>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Tryck på <strong>🎤 Diktera</strong>. Knappen blir röd och visar "⏹ Stoppa".</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Tala tydligt på svenska. Dikteringen fortsätter tills du stoppar den.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Tryck <strong>⏹ Stoppa</strong> när du är klar.</div></div>
 
-  <hr>
-  <p style="margin-top:32px;font-size:.9rem;color:#64748b">Har du frågor eller stöter på problem? Hör av dig till den kollega som introducerade dig till appen.</p>
+  <div class="tip">Du kan diktera hur länge du vill – appen startar om lyssningen automatiskt om telefonen försöker avbryta den.</div>
+  <div class="warning">På iPhone fungerar röstinmatning bara i Safari-webbläsaren, inte om appen är sparad som ikon på hemskärmen. Det är en begränsning i iOS som vi inte kan kringgå.</div>
+</section>
 
-</main>
+<section id="kalender">
+  <h2>📅 8. Boka i Google Kalender</h2>
+  <p>På <em>Kontakta</em>-noteringar med en kopplad person (som har e-postadress) visas knappen <strong>📅 Boka tid</strong>. Den öppnar Google Kalender direkt med ett nytt evenemang förifyllt.</p>
 
-<footer>Noteringar · github.com/erengisle/noteringar</footer>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Tryck <strong>📅 Boka tid</strong> på noteringen.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Google Kalender öppnas med titel, beskrivning och inbjuden gäst förifyllt.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Välj tid och datum, tryck sedan <strong>Spara</strong> i Kalender.</div></div>
+
+  <div class="tip">Du behöver vara inloggad på Google i webbläsaren för att det ska fungera direkt.</div>
+</section>
 
 </body>
 </html>
