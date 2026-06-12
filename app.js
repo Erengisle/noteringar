@@ -332,7 +332,6 @@ function parseSheetUrl(url) {
   if (!idMatch) return null;
   return { id: idMatch[1], gid: gidMatch ? gidMatch[1] : '0' };
 }
-
 function sheetCsvUrl(id, gid) {
   return `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&gid=${gid}`;
 }
@@ -418,11 +417,15 @@ function setupVoiceButton(btnId, targetId) {
   btn.classList.remove('hidden');
 
   btn.addEventListener('click', () => {
-    if (listening) { recognition.stop(); return; }
-    recognition.start();
+    if (listening) {
+      listening = false;
+      recognition.stop();
+      return;
+    }
     listening = true;
     btn.classList.add('listening');
     btn.textContent = '⏹ Stoppa';
+    recognition.start();
   });
 
   recognition.onresult = e => {
@@ -438,12 +441,22 @@ function setupVoiceButton(btnId, targetId) {
     }
   };
 
+  // Om webbläsaren avbryter själv (tidsgräns) – starta om automatiskt
   recognition.onend = () => {
-    listening = false;
-    btn.classList.remove('listening');
-    btn.textContent = '🎤 Diktera';
+    if (listening) {
+      recognition.start();
+    } else {
+      btn.classList.remove('listening');
+      btn.textContent = '🎤 Diktera';
+    }
   };
-  recognition.onerror = () => {
+
+  recognition.onerror = e => {
+    if (e.error === 'no-speech' && listening) {
+      // Tystnad – starta om
+      recognition.start();
+      return;
+    }
     listening = false;
     btn.classList.remove('listening');
     btn.textContent = '🎤 Diktera';
@@ -514,7 +527,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('cancel-settings-btn').addEventListener('click', closeSettings);
   document.getElementById('cancel-settings-btn-2').addEventListener('click', closeSettings);
 
-  // Röstinmatning – kontinuerligt läge, stoppar när användaren trycker Stoppa
   setupVoiceButton('voice-btn',      'note-text');
   setupVoiceButton('voice-name-btn', 'manual-name');
 
