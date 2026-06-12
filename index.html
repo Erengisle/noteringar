@@ -87,7 +87,6 @@
         <button class="cat-btn" data-cat="foljupp">Följ upp</button>
       </div>
 
-      <!-- Kontaktväljare (sparade kontakter) – visas för kontakta/foljupp -->
       <div class="form-group" id="person-group" style="display:none">
         <label for="person-select">Välj sparad kontakt</label>
         <select id="person-select">
@@ -95,11 +94,11 @@
         </select>
       </div>
 
-      <!-- Manuella fält – visas för kontakta, kom ihåg, att göra, följ upp -->
       <div id="manual-person-fields" style="display:none">
         <div class="form-group">
           <label for="manual-name">Namn (valfritt)</label>
           <input type="text" id="manual-name" placeholder="Förnamn Efternamn">
+          <button id="voice-name-btn" class="btn-voice hidden" type="button">🎤 Diktera</button>
         </div>
         <div class="form-group">
           <label for="manual-phone">Telefon (valfritt)</label>

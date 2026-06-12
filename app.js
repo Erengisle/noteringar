@@ -31,12 +31,9 @@ const CATS = {
   foljupp:  { label: 'Följ upp',  cls: 'cat-foljupp'  },
 };
 
-// Kategorier som visar person-fält
-const CATS_WITH_PERSON  = new Set(['kontakta', 'paminn', 'attgora', 'foljupp']);
-// Kategorier som visar kontaktväljare (sparade kontakter)
-const CATS_WITH_PICKER  = new Set(['kontakta', 'foljupp']);
-// Kategorier som visar kalenderknapp
-const CATS_WITH_CAL     = new Set(['kontakta', 'paminn', 'attgora']);
+const CATS_WITH_PERSON = new Set(['kontakta', 'paminn', 'attgora', 'foljupp']);
+const CATS_WITH_PICKER = new Set(['kontakta', 'foljupp']);
+const CATS_WITH_CAL    = new Set(['kontakta', 'paminn', 'attgora']);
 
 // ── Render helpers ────────────────────────────────────────────────────────────
 
@@ -66,20 +63,14 @@ function renderNoteCard(note, idx) {
   const date   = `<span class="note-date">${fmtDate(note.created)}</span>`;
 
   let actions = '';
-
-  // Ring-knapp
   if (note.personPhone) {
     actions += `<a class="btn-call" href="tel:${escHtml(note.personPhone)}">📞 Ring</a>`;
   }
-
-  // E-post (kontakta)
   if (note.cat === 'kontakta' && note.personEmail) {
     const subject = encodeURIComponent('Angående: ' + (note.text || ''));
     const body    = encodeURIComponent(note.text || '');
     actions += `<a class="btn-email" href="mailto:${note.personEmail}?subject=${subject}&body=${body}">✉ Öppna e-post</a>`;
   }
-
-  // Kalender (kontakta, kom ihåg, att göra)
   if (CATS_WITH_CAL.has(note.cat)) {
     const calTitle   = encodeURIComponent((note.personName ? note.personName + ': ' : '') + (note.text || ''));
     const calDetails = encodeURIComponent(note.text || '');
@@ -87,7 +78,6 @@ function renderNoteCard(note, idx) {
     if (note.personEmail) calUrl += `&add=${encodeURIComponent(note.personEmail)}`;
     actions += `<a class="btn-calendar" href="${calUrl}" target="_blank" rel="noopener">📅 Boka tid</a>`;
   }
-
   if (!done) {
     actions += `<button class="btn-done" data-action="toggle" data-idx="${idx}">✓ Markera klar</button>`;
   }
@@ -111,7 +101,6 @@ function renderNotes() {
     .map((n, i) => ({ ...n, _i: i }))
     .filter(n => currentTab === 'history' ? n.done : !n.done)
     .sort((a, b) => b.created.localeCompare(a.created));
-
   if (!filtered.length) {
     container.innerHTML = `<div class="empty-state">${currentTab === 'history' ? 'Ingen historik än.' : 'Inga aktiva noteringar.'}</div>`;
     return;
@@ -121,7 +110,7 @@ function renderNotes() {
 
 function renderContacts() {
   renderGroup('colleague-list', contacts.colleagues, 'colleague');
-  renderGroup('student-list', contacts.students, 'student');
+  renderGroup('student-list',   contacts.students,   'student');
 }
 
 function renderGroup(containerId, list, type) {
@@ -155,32 +144,24 @@ function showTab(tab) {
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
   document.getElementById('notes-view').classList.toggle('hidden', tab === 'contacts');
   document.getElementById('contacts-view').classList.toggle('hidden', tab !== 'contacts');
-
   const quickCatsSection = document.querySelector('.quick-cats');
   const quickCatsLabel   = quickCatsSection?.previousElementSibling;
   const notesLabel = document.getElementById('notes-label');
   if (quickCatsSection) quickCatsSection.style.display = tab === 'active' ? 'grid' : 'none';
   if (quickCatsLabel)   quickCatsLabel.style.display   = tab === 'active' ? ''     : 'none';
   if (notesLabel) notesLabel.textContent = tab === 'history' ? 'Historik' : 'Aktiva ärenden';
-
   if (tab !== 'contacts') renderNotes();
   else renderContacts();
 }
 
-// ── Note modal helpers ───────────────────────────────────────────────────────────
+// ── Note modal ────────────────────────────────────────────────────────────────
 
 function onCatSelect(cat) {
   selectedCat = cat;
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('selected', b.dataset.cat === cat));
-
-  const showPicker = CATS_WITH_PICKER.has(cat);
-  const showPerson = CATS_WITH_PERSON.has(cat);
-
-  document.getElementById('person-group').style.display        = showPicker ? 'block' : 'none';
-  document.getElementById('manual-person-fields').style.display = showPerson ? 'block' : 'none';
-
-  if (!showPicker) return;
-
+  document.getElementById('person-group').style.display         = CATS_WITH_PICKER.has(cat) ? 'block' : 'none';
+  document.getElementById('manual-person-fields').style.display = CATS_WITH_PERSON.has(cat) ? 'block' : 'none';
+  if (!CATS_WITH_PICKER.has(cat)) return;
   const sel = document.getElementById('person-select');
   sel.innerHTML = '<option value="">– Välj sparad kontakt (valfritt) –</option>';
   if (contacts.colleagues.length) {
@@ -219,7 +200,7 @@ function fillManualFromContact(val) {
 function openNewNote(preselectedCat) {
   selectedCat = null;
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
-  document.getElementById('note-text').value   = '';
+  document.getElementById('note-text').value    = '';
   document.getElementById('manual-name').value  = '';
   document.getElementById('manual-phone').value = '';
   document.getElementById('person-select').innerHTML = '<option value="">– Välj sparad kontakt (valfritt) –</option>';
@@ -265,8 +246,6 @@ function saveNote() {
   if (!selectedCat) { alert('Välj en kategori.'); return; }
   const text = document.getElementById('note-text').value.trim();
   if (!text) { alert('Skriv en kort notering.'); return; }
-
-  // Hämta personuppgifter: manuella fält är källan, e-post från sparad kontakt
   const personName  = document.getElementById('manual-name').value.trim();
   const personPhone = document.getElementById('manual-phone').value.trim();
   let personEmail = '';
@@ -276,7 +255,6 @@ function saveNote() {
     const c = type === 'colleague' ? contacts.colleagues[+idx] : contacts.students[+idx];
     personEmail = c?.email || '';
   }
-
   const editIdx = document.getElementById('note-modal').dataset.editIdx;
   if (editIdx !== undefined) {
     const n = notes[+editIdx];
@@ -285,9 +263,7 @@ function saveNote() {
   } else {
     notes.push({ cat: selectedCat, text, personName, personEmail, personPhone, created: new Date().toISOString(), done: false });
   }
-  saveNotes();
-  closeNewNote();
-  renderNotes();
+  saveNotes(); closeNewNote(); renderNotes();
 }
 
 // ── Contact modal ─────────────────────────────────────────────────────────────
@@ -296,20 +272,15 @@ function openContactModal(type, idx) {
   editingContact = idx !== undefined ? { type, idx } : { type, idx: null };
   const isNew = editingContact.idx === null;
   const c = isNew ? {} : (type === 'colleague' ? contacts.colleagues[idx] : contacts.students[idx]);
-
   document.getElementById('contact-modal-title').textContent = isNew
     ? (type === 'colleague' ? 'Lägg till kollega' : 'Lägg till elev')
     : 'Redigera';
-
   document.getElementById('contact-name').value    = c.name    || '';
   document.getElementById('contact-email').value   = c.email   || '';
   document.getElementById('contact-phone').value   = c.phone   || '';
-
-  const studentFields = document.getElementById('student-fields');
-  studentFields.style.display = type === 'student' ? 'block' : 'none';
+  document.getElementById('student-fields').style.display = type === 'student' ? 'block' : 'none';
   document.getElementById('contact-klass').value    = c.klass    || '';
   document.getElementById('contact-guardian').value = c.guardian || '';
-
   document.getElementById('contact-modal').classList.remove('hidden');
   document.getElementById('contact-name').focus();
 }
@@ -322,7 +293,6 @@ function closeContactModal() {
 function saveContact() {
   const name = document.getElementById('contact-name').value.trim();
   if (!name) { alert('Ange ett namn.'); return; }
-
   const { type, idx } = editingContact;
   const list = type === 'colleague' ? contacts.colleagues : contacts.students;
   const entry = {
@@ -332,13 +302,9 @@ function saveContact() {
     klass:    type === 'student' ? document.getElementById('contact-klass').value.trim()    : undefined,
     guardian: type === 'student' ? document.getElementById('contact-guardian').value.trim() : undefined,
   };
-
   if (idx === null) list.push(entry);
   else list[idx] = entry;
-
-  saveContacts();
-  closeContactModal();
-  renderContacts();
+  saveContacts(); closeContactModal(); renderContacts();
 }
 
 // ── Contact Picker API ────────────────────────────────────────────────────────
@@ -378,44 +344,32 @@ function openSettings() {
   document.getElementById('settings-colleague-url').value = settings.colleagueSheetUrl || '';
   document.getElementById('settings-modal').classList.remove('hidden');
 }
-
-function closeSettings() {
-  document.getElementById('settings-modal').classList.add('hidden');
-}
-
+function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
 function saveSettingsForm() {
   settings.studentSheetUrl   = document.getElementById('settings-student-url').value.trim();
   settings.colleagueSheetUrl = document.getElementById('settings-colleague-url').value.trim();
-  saveSettings();
-  closeSettings();
+  saveSettings(); closeSettings();
 }
 
 function parseCSV(text) {
   return text.trim().split('\n').map(row => {
-    const cells = [];
-    let cur = '', inQ = false;
+    const cells = []; let cur = '', inQ = false;
     for (const ch of row) {
       if (ch === '"') { inQ = !inQ; }
       else if (ch === ',' && !inQ) { cells.push(cur.trim()); cur = ''; }
       else cur += ch;
     }
-    cells.push(cur.trim());
-    return cells;
+    cells.push(cur.trim()); return cells;
   });
 }
 
 async function importFromSheet(type) {
   const url = type === 'students' ? settings.studentSheetUrl : settings.colleagueSheetUrl;
   const cfg = parseSheetUrl(url);
-  if (!cfg) {
-    openSettings();
-    alert('Klistra in länken till ditt Google Sheet under Inställningar först.');
-    return;
-  }
-  const btn = document.getElementById(type === 'students' ? 'import-students-btn' : 'import-colleagues-btn');
+  if (!cfg) { openSettings(); alert('Klistra in länken till ditt Google Sheet under Inställningar först.'); return; }
+  const btn  = document.getElementById(type === 'students' ? 'import-students-btn' : 'import-colleagues-btn');
   const orig = btn.textContent;
-  btn.textContent = 'Hämtar…';
-  btn.disabled = true;
+  btn.textContent = 'Hämtar…'; btn.disabled = true;
   try {
     const res = await fetch(sheetCsvUrl(cfg.id, cfg.gid));
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -436,19 +390,64 @@ async function importFromSheet(type) {
         if (imp.phone)    existing.phone    = imp.phone;
         if (imp.klass)    existing.klass    = imp.klass;
         if (imp.guardian) existing.guardian = imp.guardian;
-      } else {
-        list.push(imp);
-      }
+      } else { list.push(imp); }
     });
-    saveContacts();
-    renderContacts();
+    saveContacts(); renderContacts();
     btn.textContent = `✓ ${imported.length} importerade`;
     setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
   } catch (err) {
     alert('Kunde inte hämta sheetet.\n\n' + err.message);
-    btn.textContent = orig;
-    btn.disabled = false;
+    btn.textContent = orig; btn.disabled = false;
   }
+}
+
+// ── Röstinmatning ───────────────────────────────────────────────────────────────
+
+function setupVoiceButton(btnId, targetId) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) return;
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'sv-SE';
+  recognition.continuous = true;
+  recognition.interimResults = false;
+  let listening = false;
+
+  btn.classList.remove('hidden');
+
+  btn.addEventListener('click', () => {
+    if (listening) { recognition.stop(); return; }
+    recognition.start();
+    listening = true;
+    btn.classList.add('listening');
+    btn.textContent = '⏹ Stoppa';
+  });
+
+  recognition.onresult = e => {
+    const transcript = Array.from(e.results)
+      .slice(e.resultIndex)
+      .map(r => r[0].transcript)
+      .join('');
+    const input = document.getElementById(targetId);
+    if (input.tagName === 'TEXTAREA') {
+      input.value = (input.value ? input.value + ' ' : '') + transcript;
+    } else {
+      input.value = transcript;
+    }
+  };
+
+  recognition.onend = () => {
+    listening = false;
+    btn.classList.remove('listening');
+    btn.textContent = '🎤 Diktera';
+  };
+  recognition.onerror = () => {
+    listening = false;
+    btn.classList.remove('listening');
+    btn.textContent = '🎤 Diktera';
+  };
 }
 
 // ── Event delegation ──────────────────────────────────────────────────────────
@@ -457,28 +456,24 @@ document.addEventListener('click', e => {
   const action = e.target.dataset.action || e.target.closest('[data-action]')?.dataset.action;
   const el = e.target.dataset.action ? e.target : e.target.closest('[data-action]');
   if (!el) return;
-
   switch (action) {
     case 'toggle': {
       const i = +el.dataset.idx;
       notes[i].done = !notes[i].done;
-      saveNotes(); renderNotes();
-      break;
+      saveNotes(); renderNotes(); break;
     }
-    case 'edit-note':   openEditNote(+el.dataset.idx); break;
+    case 'edit-note':  openEditNote(+el.dataset.idx); break;
     case 'delete': {
       if (!confirm('Ta bort notering?')) return;
       notes.splice(+el.dataset.idx, 1);
-      saveNotes(); renderNotes();
-      break;
+      saveNotes(); renderNotes(); break;
     }
     case 'edit-contact': openContactModal(el.dataset.type, +el.dataset.idx); break;
     case 'del-contact': {
       if (!confirm('Ta bort kontakt?')) return;
       const list = el.dataset.type === 'colleague' ? contacts.colleagues : contacts.students;
       list.splice(+el.dataset.idx, 1);
-      saveContacts(); renderContacts();
-      break;
+      saveContacts(); renderContacts(); break;
     }
   }
 });
@@ -486,92 +481,47 @@ document.addEventListener('click', e => {
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Nav
   document.querySelectorAll('nav button').forEach(b =>
     b.addEventListener('click', () => showTab(b.dataset.tab)));
-
-  // Snabbknappar
   document.querySelectorAll('.quick-cat-btn').forEach(b =>
     b.addEventListener('click', () => openNewNote(b.dataset.quickCat)));
-
-  // Kategoriknappar i modal
   document.querySelectorAll('.cat-btn').forEach(b =>
     b.addEventListener('click', () => onCatSelect(b.dataset.cat)));
-
-  // Kontaktväljare: auto-fyll manuella fält
   document.getElementById('person-select').addEventListener('change', e =>
     fillManualFromContact(e.target.value));
 
-  // Noterings-modal
   document.getElementById('save-note-btn').addEventListener('click', saveNote);
   document.getElementById('cancel-note-btn').addEventListener('click', closeNewNote);
   document.getElementById('cancel-note-btn-2').addEventListener('click', closeNewNote);
 
-  // Kontakt-modal
   document.getElementById('save-contact-btn').addEventListener('click', saveContact);
   document.getElementById('cancel-contact-btn').addEventListener('click', closeContactModal);
   document.getElementById('cancel-contact-btn-2').addEventListener('click', closeContactModal);
 
-  // Contact Picker
   const pickBtn = document.getElementById('pick-phone-contact-btn');
   if ('contacts' in navigator && 'ContactsManager' in window) {
     pickBtn.classList.remove('hidden');
     pickBtn.addEventListener('click', pickFromPhoneContacts);
   }
 
-  // Lägg till kontakt-knappar
   document.getElementById('add-colleague-btn').addEventListener('click', () => openContactModal('colleague'));
   document.getElementById('add-student-btn').addEventListener('click',   () => openContactModal('student'));
-
-  // Import-knappar
   document.getElementById('import-students-btn').addEventListener('click',   () => importFromSheet('students'));
   document.getElementById('import-colleagues-btn').addEventListener('click', () => importFromSheet('colleagues'));
 
-  // Inställningar
   document.getElementById('settings-btn').addEventListener('click', openSettings);
   document.getElementById('save-settings-btn').addEventListener('click', saveSettingsForm);
   document.getElementById('cancel-settings-btn').addEventListener('click', closeSettings);
   document.getElementById('cancel-settings-btn-2').addEventListener('click', closeSettings);
 
-  // Röstinmatning
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (SpeechRecognition) {
-    const voiceBtn    = document.getElementById('voice-btn');
-    const recognition = new SpeechRecognition();
-    recognition.lang = 'sv-SE';
-    recognition.continuous = false;
-    recognition.interimResults = false;
-    let listening = false;
+  // Röstinmatning – kontinuerligt läge, stoppar när användaren trycker Stoppa
+  setupVoiceButton('voice-btn',      'note-text');
+  setupVoiceButton('voice-name-btn', 'manual-name');
 
-    voiceBtn.classList.remove('hidden');
-
-    voiceBtn.addEventListener('click', () => {
-      if (listening) { recognition.stop(); return; }
-      recognition.start();
-      listening = true;
-      voiceBtn.classList.add('listening');
-      voiceBtn.textContent = '⏹ Stoppa';
-    });
-
-    recognition.onresult = e => {
-      const transcript = e.results[0][0].transcript;
-      const ta = document.getElementById('note-text');
-      ta.value = (ta.value ? ta.value + ' ' : '') + transcript;
-    };
-
-    recognition.onend = recognition.onerror = () => {
-      listening = false;
-      voiceBtn.classList.remove('listening');
-      voiceBtn.textContent = '🎤 Diktera';
-    };
-  }
-
-  // Tangentbord
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') { closeNewNote(); closeContactModal(); closeSettings(); }
   });
 
-  // Service worker
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
 
   showTab('active');
