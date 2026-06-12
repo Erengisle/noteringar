@@ -26,12 +26,9 @@
 
 <!-- Notes view -->
 <main id="notes-view">
-
-  <!-- Aktiva ärenden -->
   <div class="section-label" id="notes-label">Aktiva ärenden</div>
   <div id="note-list" class="note-list"></div>
 
-  <!-- Snabbval: kategorirutnät -->
   <div class="section-label" style="margin-top:24px">Ny notering</div>
   <div class="quick-cats">
     <button class="quick-cat-btn qc-kontakta" data-quick-cat="kontakta">
@@ -44,7 +41,7 @@
     </button>
     <button class="quick-cat-btn qc-paminn" data-quick-cat="paminn">
       <span class="qc-icon">⏰</span>
-      <span class="qc-label">Påminn mig</span>
+      <span class="qc-label">Kom ihåg!</span>
     </button>
     <button class="quick-cat-btn qc-attgora" data-quick-cat="attgora">
       <span class="qc-icon">✅</span>
@@ -55,7 +52,6 @@
       <span class="qc-label">Följ upp</span>
     </button>
   </div>
-
 </main>
 
 <!-- Contacts view -->
@@ -86,21 +82,35 @@
       <div class="category-grid">
         <button class="cat-btn" data-cat="kontakta">Kontakta</button>
         <button class="cat-btn" data-cat="kollup">Kolla upp</button>
-        <button class="cat-btn" data-cat="paminn">Påminn mig</button>
+        <button class="cat-btn" data-cat="paminn">Kom ihåg!</button>
         <button class="cat-btn" data-cat="attgora">Att göra</button>
         <button class="cat-btn" data-cat="foljupp">Följ upp</button>
       </div>
 
+      <!-- Kontaktväljare (sparade kontakter) – visas för kontakta/foljupp -->
       <div class="form-group" id="person-group" style="display:none">
-        <label for="person-select">Person</label>
+        <label for="person-select">Välj sparad kontakt</label>
         <select id="person-select">
           <option value="">– Välj person (valfritt) –</option>
         </select>
       </div>
 
+      <!-- Manuella fält – visas för kontakta, kom ihåg, att göra, följ upp -->
+      <div id="manual-person-fields" style="display:none">
+        <div class="form-group">
+          <label for="manual-name">Namn (valfritt)</label>
+          <input type="text" id="manual-name" placeholder="Förnamn Efternamn">
+        </div>
+        <div class="form-group">
+          <label for="manual-phone">Telefon (valfritt)</label>
+          <input type="tel" id="manual-phone" placeholder="07X XXX XX XX">
+        </div>
+      </div>
+
       <div class="form-group">
         <label for="note-text">Notering</label>
         <textarea id="note-text" placeholder="Skriv något kort…" rows="3"></textarea>
+        <button id="voice-btn" class="btn-voice hidden" type="button">🎤 Diktera</button>
       </div>
 
       <div class="modal-actions">
