@@ -177,6 +177,22 @@ main { padding: 16px; }
 
 .note-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
+.btn-call {
+  font-size: .8rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--green);
+  color: var(--green);
+  background: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+.btn-call:active { background: #f0fdf4; }
+
 .btn-email {
   font-size: .8rem;
   padding: 6px 12px;
@@ -335,7 +351,7 @@ label { display: block; font-size: .82rem; font-weight: 600; color: var(--gray-6
 .cat-btn[data-cat="attgora"].selected  { background: var(--green); }
 .cat-btn[data-cat="foljupp"].selected  { background: var(--purple); }
 
-select, textarea, input[type=text] {
+select, textarea, input[type=text], input[type=tel] {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid var(--gray-200);
@@ -374,6 +390,22 @@ textarea { resize: vertical; min-height: 70px; }
   cursor: pointer;
   color: var(--gray-600);
 }
+
+/* ── Phone contact picker ── */
+.btn-phone-import {
+  width: 100%;
+  padding: 12px;
+  background: #f0fdf4;
+  border: 1.5px solid var(--green);
+  border-radius: 10px;
+  color: var(--green);
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.btn-phone-import:active { background: #dcfce7; }
 
 /* ── Contacts page ── */
 .contacts-section { margin-bottom: 24px; }

@@ -119,6 +119,8 @@
       <button class="modal-close" id="cancel-contact-btn" aria-label="Stäng">✕</button>
     </div>
     <div class="modal-body">
+      <button id="pick-phone-contact-btn" class="btn-phone-import hidden">📱 Hämta från telefonkontakter</button>
+
       <div class="form-group">
         <label for="contact-name">Namn</label>
         <input type="text" id="contact-name" placeholder="Förnamn Efternamn">
@@ -126,6 +128,10 @@
       <div class="form-group">
         <label for="contact-email">E-post</label>
         <input type="text" id="contact-email" placeholder="namn@skola.se">
+      </div>
+      <div class="form-group">
+        <label for="contact-phone">Telefon</label>
+        <input type="tel" id="contact-phone" placeholder="07X XXX XX XX">
       </div>
 
       <div id="student-fields">
