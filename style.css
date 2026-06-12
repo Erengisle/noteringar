@@ -391,6 +391,22 @@ textarea { resize: vertical; min-height: 70px; }
   color: var(--gray-600);
 }
 
+/* ── Phone contact picker ── */
+.btn-phone-import {
+  width: 100%;
+  padding: 12px;
+  background: #f0fdf4;
+  border: 1.5px solid var(--green);
+  border-radius: 10px;
+  color: var(--green);
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.btn-phone-import:active { background: #dcfce7; }
+
 /* ── Contacts page ── */
 .contacts-section { margin-bottom: 24px; }
 .contacts-section h3 {

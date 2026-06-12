@@ -308,6 +308,21 @@ function saveContact() {
   renderContacts();
 }
 
+// ── Contact Picker API ────────────────────────────────────────────────────────
+
+async function pickFromPhoneContacts() {
+  try {
+    const picked = await navigator.contacts.select(['name', 'email', 'tel'], { multiple: false });
+    if (!picked.length) return;
+    const c = picked[0];
+    if (c.name?.[0])  document.getElementById('contact-name').value  = c.name[0];
+    if (c.email?.[0]) document.getElementById('contact-email').value = c.email[0];
+    if (c.tel?.[0])   document.getElementById('contact-phone').value = c.tel[0];
+  } catch {
+    // Användaren avbröt eller API:et stöds ej – gör inget
+  }
+}
+
 // ── Google Sheets import ──────────────────────────────────────────────────────
 
 const STUDENT_COLS   = { name: 0, email: 1, klass: 2, guardian: 3, phone: 4 };
@@ -478,6 +493,13 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('save-contact-btn').addEventListener('click', saveContact);
   document.getElementById('cancel-contact-btn').addEventListener('click', closeContactModal);
   document.getElementById('cancel-contact-btn-2').addEventListener('click', closeContactModal);
+
+  // Contact Picker – visas bara om webbläsaren stöder API:et
+  const pickBtn = document.getElementById('pick-phone-contact-btn');
+  if ('contacts' in navigator && 'ContactsManager' in window) {
+    pickBtn.classList.remove('hidden');
+    pickBtn.addEventListener('click', pickFromPhoneContacts);
+  }
 
   // Add contact buttons
   document.getElementById('add-colleague-btn').addEventListener('click', () => openContactModal('colleague'));
