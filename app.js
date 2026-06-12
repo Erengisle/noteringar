@@ -55,6 +55,9 @@ function renderNoteCard(note, idx) {
   const date   = `<span class="note-date">${fmtDate(note.created)}</span>`;
 
   let actions = '';
+  if (note.personPhone) {
+    actions += `<a class="btn-call" href="tel:${escHtml(note.personPhone)}">📞 Ring</a>`;
+  }
   if (note.cat === 'kontakta' && note.personEmail) {
     const subject = encodeURIComponent('Angående: ' + (note.text || ''));
     const body    = encodeURIComponent(note.text || '');
@@ -112,9 +115,15 @@ function renderGroup(containerId, list, type) {
   list.forEach((c, i) => {
     const item = document.createElement('div');
     item.className = 'contact-item';
-    const meta = type === 'student'
-      ? (c.klass ? c.klass : '') + (c.klass && c.guardian ? ' · ' : '') + (c.guardian ? 'VH: ' + c.guardian : '')
-      : (c.email || '');
+    const metaParts = [];
+    if (type === 'student') {
+      if (c.klass) metaParts.push(c.klass);
+      if (c.guardian) metaParts.push('VH: ' + c.guardian);
+    } else {
+      if (c.email) metaParts.push(c.email);
+    }
+    if (c.phone) metaParts.push('📞 ' + c.phone);
+    const meta = metaParts.join(' · ');
     item.innerHTML = `
       <span class="name">${escHtml(c.name)}</span>
       <span class="meta">${escHtml(meta)}</span>
@@ -227,20 +236,21 @@ function saveNote() {
   if (!text) { alert('Skriv en kort notering.'); return; }
 
   const selVal = document.getElementById('person-select').value;
-  let personName = '', personEmail = '';
+  let personName = '', personEmail = '', personPhone = '';
   if (selVal) {
     const [type, idx] = selVal.split(':');
     const c = type === 'colleague' ? contacts.colleagues[+idx] : contacts.students[+idx];
     personName  = c?.name  || '';
     personEmail = c?.email || '';
+    personPhone = c?.phone || '';
   }
 
   const editIdx = document.getElementById('note-modal').dataset.editIdx;
   if (editIdx !== undefined) {
     const n = notes[+editIdx];
-    n.cat = selectedCat; n.text = text; n.personName = personName; n.personEmail = personEmail;
+    n.cat = selectedCat; n.text = text; n.personName = personName; n.personEmail = personEmail; n.personPhone = personPhone;
   } else {
-    notes.push({ cat: selectedCat, text, personName, personEmail, created: new Date().toISOString(), done: false });
+    notes.push({ cat: selectedCat, text, personName, personEmail, personPhone, created: new Date().toISOString(), done: false });
   }
   saveNotes();
   closeNewNote();
@@ -260,6 +270,7 @@ function openContactModal(type, idx) {
 
   document.getElementById('contact-name').value    = c.name    || '';
   document.getElementById('contact-email').value   = c.email   || '';
+  document.getElementById('contact-phone').value   = c.phone   || '';
 
   const studentFields = document.getElementById('student-fields');
   studentFields.style.display = type === 'student' ? 'block' : 'none';
@@ -284,6 +295,7 @@ function saveContact() {
   const entry = {
     name,
     email:    document.getElementById('contact-email').value.trim(),
+    phone:    document.getElementById('contact-phone').value.trim(),
     klass:    type === 'student' ? document.getElementById('contact-klass').value.trim()    : undefined,
     guardian: type === 'student' ? document.getElementById('contact-guardian').value.trim() : undefined,
   };
@@ -298,8 +310,8 @@ function saveContact() {
 
 // ── Google Sheets import ──────────────────────────────────────────────────────
 
-const STUDENT_COLS   = { name: 0, email: 1, klass: 2, guardian: 3 };
-const COLLEAGUE_COLS = { name: 0, email: 1 };
+const STUDENT_COLS   = { name: 0, email: 1, klass: 2, guardian: 3, phone: 4 };
+const COLLEAGUE_COLS = { name: 0, email: 1, phone: 2 };
 
 function parseSheetUrl(url) {
   if (!url) return null;
@@ -369,6 +381,7 @@ async function importFromSheet(type) {
     const imported = rows.slice(1).map(r => ({
       name:     (r[cols.name]     || '').trim(),
       email:    (r[cols.email]    || '').trim(),
+      phone:    cols.phone != null ? (r[cols.phone] || '').trim() : undefined,
       klass:    cols.klass    != null ? (r[cols.klass]    || '').trim() : undefined,
       guardian: cols.guardian != null ? (r[cols.guardian] || '').trim() : undefined,
     })).filter(c => c.name);
@@ -380,6 +393,7 @@ async function importFromSheet(type) {
       const existing = list.find(c => c.name === imp.name);
       if (existing) {
         if (imp.email)    existing.email    = imp.email;
+        if (imp.phone)    existing.phone    = imp.phone;
         if (imp.klass)    existing.klass    = imp.klass;
         if (imp.guardian) existing.guardian = imp.guardian;
       } else {
