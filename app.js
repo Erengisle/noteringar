@@ -116,9 +116,15 @@ function renderGroup(containerId, list, type) {
   list.forEach((c, i) => {
     const item = document.createElement('div');
     item.className = 'contact-item';
-    const meta = type === 'student'
-      ? (c.klass ? c.klass : '') + (c.klass && c.guardian ? ' · ' : '') + (c.guardian ? 'VH: ' + c.guardian : '')
-      : (c.email || '');
+    const metaParts = [];
+    if (type === 'student') {
+      if (c.klass) metaParts.push(c.klass);
+      if (c.guardian) metaParts.push('VH: ' + c.guardian);
+    } else {
+      if (c.email) metaParts.push(c.email);
+    }
+    if (c.phone) metaParts.push('📞 ' + c.phone);
+    const meta = metaParts.join(' · ');
     item.innerHTML = `
       <span class="name">${escHtml(c.name)}</span>
       <span class="meta">${escHtml(meta)}</span>
@@ -169,6 +175,7 @@ function openEditNote(idx) {
       if (c?.name === note.personName) { sel.value = opt.value; break; }
     }
     document.getElementById('note-text').focus();
+    updateModalCalLink();
   }, 50);
 }
 
@@ -178,6 +185,7 @@ function openNewNote(preselectedCat) {
   document.getElementById('note-text').value = '';
   document.getElementById('person-group').style.display = 'none';
   document.getElementById('person-select').innerHTML = '<option value="">– Välj person –</option>';
+  document.getElementById('cal-link-btn').classList.add('hidden');
   document.getElementById('note-modal').classList.remove('hidden');
   delete document.getElementById('note-modal').dataset.editIdx;
   document.getElementById('note-modal-title').textContent = 'Ny notering';
@@ -189,6 +197,26 @@ function closeNewNote() {
   document.getElementById('note-modal').classList.add('hidden');
 }
 
+function updateModalCalLink() {
+  const btn = document.getElementById('cal-link-btn');
+  if (!selectedCat) { btn.classList.add('hidden'); return; }
+  const text = document.getElementById('note-text').value.trim();
+  const selVal = document.getElementById('person-select').value;
+  let personName = '', personEmail = '';
+  if (selVal) {
+    const [type, i] = selVal.split(':');
+    const c = type === 'colleague' ? contacts.colleagues[+i] : contacts.students[+i];
+    personName = c?.name || '';
+    personEmail = c?.email || '';
+  }
+  const title   = encodeURIComponent((personName || CATS[selectedCat].label) + (text ? ': ' + text : ''));
+  const details = encodeURIComponent(text);
+  let url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}`;
+  if (personEmail) url += `&add=${encodeURIComponent(personEmail)}`;
+  btn.href = url;
+  btn.classList.remove('hidden');
+}
+
 function onCatSelect(cat) {
   selectedCat = cat;
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('selected', b.dataset.cat === cat));
@@ -198,6 +226,7 @@ function onCatSelect(cat) {
   const showPerson = cat === 'kontakta' || cat === 'foljupp';
 
   personGroup.style.display = showPerson ? 'block' : 'none';
+  updateModalCalLink();
   if (!showPerson) return;
 
   sel.innerHTML = '<option value="">– Välj person (valfritt) –</option>';
@@ -231,20 +260,21 @@ function saveNote() {
   if (!text) { alert('Skriv en kort notering.'); return; }
 
   const selVal = document.getElementById('person-select').value;
-  let personName = '', personEmail = '';
+  let personName = '', personEmail = '', personPhone = '';
   if (selVal) {
     const [type, idx] = selVal.split(':');
     const c = type === 'colleague' ? contacts.colleagues[+idx] : contacts.students[+idx];
     personName  = c?.name  || '';
     personEmail = c?.email || '';
+    personPhone = c?.phone || '';
   }
 
   const editIdx = document.getElementById('note-modal').dataset.editIdx;
   if (editIdx !== undefined) {
     const n = notes[+editIdx];
-    n.cat = selectedCat; n.text = text; n.personName = personName; n.personEmail = personEmail;
+    n.cat = selectedCat; n.text = text; n.personName = personName; n.personEmail = personEmail; n.personPhone = personPhone;
   } else {
-    notes.push({ cat: selectedCat, text, personName, personEmail, created: new Date().toISOString(), done: false });
+    notes.push({ cat: selectedCat, text, personName, personEmail, personPhone, created: new Date().toISOString(), done: false });
   }
   saveNotes();
   closeNewNote();
@@ -264,6 +294,7 @@ function openContactModal(type, idx) {
 
   document.getElementById('contact-name').value    = c.name    || '';
   document.getElementById('contact-email').value   = c.email   || '';
+  document.getElementById('contact-phone').value   = c.phone   || '';
 
   const studentFields = document.getElementById('student-fields');
   studentFields.style.display = type === 'student' ? 'block' : 'none';
@@ -288,6 +319,7 @@ function saveContact() {
   const entry = {
     name,
     email:    document.getElementById('contact-email').value.trim(),
+    phone:    document.getElementById('contact-phone').value.trim(),
     klass:    type === 'student' ? document.getElementById('contact-klass').value.trim()    : undefined,
     guardian: type === 'student' ? document.getElementById('contact-guardian').value.trim() : undefined,
   };
@@ -300,10 +332,25 @@ function saveContact() {
   renderContacts();
 }
 
+// ── Contact Picker API ────────────────────────────────────────────────────────
+
+async function pickFromPhoneContacts() {
+  try {
+    const picked = await navigator.contacts.select(['name', 'email', 'tel'], { multiple: false });
+    if (!picked.length) return;
+    const c = picked[0];
+    if (c.name?.[0])  document.getElementById('contact-name').value  = c.name[0];
+    if (c.email?.[0]) document.getElementById('contact-email').value = c.email[0];
+    if (c.tel?.[0])   document.getElementById('contact-phone').value = c.tel[0];
+  } catch {
+    // Användaren avbröt eller API:et stöds ej – gör inget
+  }
+}
+
 // ── Google Sheets import ──────────────────────────────────────────────────────
 
-const STUDENT_COLS   = { name: 0, email: 1, klass: 2, guardian: 3 };
-const COLLEAGUE_COLS = { name: 0, email: 1 };
+const STUDENT_COLS   = { name: 0, email: 1, klass: 2, guardian: 3, phone: 4 };
+const COLLEAGUE_COLS = { name: 0, email: 1, phone: 2 };
 
 function parseSheetUrl(url) {
   if (!url) return null;
@@ -373,6 +420,7 @@ async function importFromSheet(type) {
     const imported = rows.slice(1).map(r => ({
       name:     (r[cols.name]     || '').trim(),
       email:    (r[cols.email]    || '').trim(),
+      phone:    cols.phone != null ? (r[cols.phone] || '').trim() : undefined,
       klass:    cols.klass    != null ? (r[cols.klass]    || '').trim() : undefined,
       guardian: cols.guardian != null ? (r[cols.guardian] || '').trim() : undefined,
     })).filter(c => c.name);
@@ -384,6 +432,7 @@ async function importFromSheet(type) {
       const existing = list.find(c => c.name === imp.name);
       if (existing) {
         if (imp.email)    existing.email    = imp.email;
+        if (imp.phone)    existing.phone    = imp.phone;
         if (imp.klass)    existing.klass    = imp.klass;
         if (imp.guardian) existing.guardian = imp.guardian;
       } else {
@@ -464,10 +513,21 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('cancel-note-btn').addEventListener('click', closeNewNote);
   document.getElementById('cancel-note-btn-2').addEventListener('click', closeNewNote);
 
+  // Live-uppdatera kalender-länken i modalen
+  document.getElementById('note-text').addEventListener('input', updateModalCalLink);
+  document.getElementById('person-select').addEventListener('change', updateModalCalLink);
+
   // Contact modal – X and Avbryt close, NO backdrop click
   document.getElementById('save-contact-btn').addEventListener('click', saveContact);
   document.getElementById('cancel-contact-btn').addEventListener('click', closeContactModal);
   document.getElementById('cancel-contact-btn-2').addEventListener('click', closeContactModal);
+
+  // Contact Picker – visas bara om webbläsaren stöder API:et
+  const pickBtn = document.getElementById('pick-phone-contact-btn');
+  if ('contacts' in navigator && 'ContactsManager' in window) {
+    pickBtn.classList.remove('hidden');
+    pickBtn.addEventListener('click', pickFromPhoneContacts);
+  }
 
   // Add contact buttons
   document.getElementById('add-colleague-btn').addEventListener('click', () => openContactModal('colleague'));
