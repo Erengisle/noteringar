@@ -195,6 +195,26 @@ function closeNewNote() {
   document.getElementById('note-modal').classList.add('hidden');
 }
 
+function updateModalCalLink() {
+  const btn = document.getElementById('cal-link-btn');
+  if (!selectedCat) { btn.classList.add('hidden'); return; }
+  const text = document.getElementById('note-text').value.trim();
+  const selVal = document.getElementById('person-select').value;
+  let personName = '', personEmail = '';
+  if (selVal) {
+    const [type, i] = selVal.split(':');
+    const c = type === 'colleague' ? contacts.colleagues[+i] : contacts.students[+i];
+    personName = c?.name || '';
+    personEmail = c?.email || '';
+  }
+  const title   = encodeURIComponent((personName || CATS[selectedCat].label) + (text ? ': ' + text : ''));
+  const details = encodeURIComponent(text);
+  let url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}`;
+  if (personEmail) url += `&add=${encodeURIComponent(personEmail)}`;
+  btn.href = url;
+  btn.classList.remove('hidden');
+}
+
 function onCatSelect(cat) {
   selectedCat = cat;
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('selected', b.dataset.cat === cat));
@@ -204,6 +224,7 @@ function onCatSelect(cat) {
   const showPerson = cat === 'kontakta' || cat === 'foljupp';
 
   personGroup.style.display = showPerson ? 'block' : 'none';
+  updateModalCalLink();
   if (!showPerson) return;
 
   sel.innerHTML = '<option value="">– Välj person (valfritt) –</option>';
@@ -489,6 +510,10 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('save-note-btn').addEventListener('click', saveNote);
   document.getElementById('cancel-note-btn').addEventListener('click', closeNewNote);
   document.getElementById('cancel-note-btn-2').addEventListener('click', closeNewNote);
+
+  // Live-uppdatera kalender-länken i modalen
+  document.getElementById('note-text').addEventListener('input', updateModalCalLink);
+  document.getElementById('person-select').addEventListener('change', updateModalCalLink);
 
   // Contact modal – X and Avbryt close, NO backdrop click
   document.getElementById('save-contact-btn').addEventListener('click', saveContact);

@@ -225,6 +225,23 @@ main { padding: 16px; }
 }
 .btn-calendar:active { background: #f0fdfa; }
 
+.btn-calendar-modal {
+  font-size: .85rem;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1.5px solid var(--teal);
+  color: var(--teal);
+  background: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+}
+.btn-calendar-modal:active { background: #f0fdfa; }
+.btn-calendar-modal.hidden { display: none; }
+
 .btn-done {
   font-size: .8rem;
   padding: 6px 12px;
